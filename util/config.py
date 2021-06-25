@@ -124,7 +124,8 @@ def init_arguments(mode):
             'Virtual train batch size, must be integer multiple of train_batch_size.'
         assert args.train_view_every % (args.virtual_batch_size // args.train_batch_size) == 0
     
-    args.log_dir = os.path.join('result', args.log_dir)
+    if hasattr(args, 'log_dir'):
+        args.log_dir = os.path.join('result', args.log_dir)
     
     return args
 
