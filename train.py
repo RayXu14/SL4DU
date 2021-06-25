@@ -1,3 +1,13 @@
+'''
+Enabled for multiGPU debugging.
+In general, the error is caused by memory shortage (in container).
+e.g. "NCCL Error 2: unhandled system error"
+https://stackoverflow.com/questions/61075390
+https://www.jianshu.com/p/888c293de469
+'''
+# import os
+# os.environ["NCCL_DEBUG"] = "INFO"
+
 import torch
 
 from util import init_arguments, print_arguments, \
@@ -18,9 +28,11 @@ def train(args):
     for epoch in range(args.max_epoch):
         print('=' * 20 + f'\n\tStart Epoch {epoch}\n' + '=' * 20)
         
-        # Auto detect nan
-        # will increase the runtime
-        # Should only be enabled for debugging
+        '''
+        Auto detect nan.
+        Will increase the runtime (severely lowing running speed).
+        Should only be enabled for debugging.
+        '''
         # with torch.autograd.detect_anomaly():
         
         handler.train_epoch()

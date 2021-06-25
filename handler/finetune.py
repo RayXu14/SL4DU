@@ -90,9 +90,10 @@ class FinetuneHandler:
         
     def run_model(self, batch):
         '''
-        官方不建议在多线程的collate_fn中把tensor移动到CUDA设备
+        Officially, it is not recommended to
+        move tensors to CUDA device in collate_fn
         (https://pytorch.org/docs/stable/data.html#multi-process-data-loading)
-        因此务必在load出data后再行移动
+        So move tensors to GPU after fetch them from Dataloader.
         '''
         cuda_batch = batch2cuda(batch)
         logits, losses = self.model(cuda_batch)
@@ -108,8 +109,9 @@ class FinetuneHandler:
         all_preds = []
         all_labels = []
         '''
-        让dropout层和batchnorm层进入eval状态
-        并要求模型不进行梯度计算以减少运算量和显存占用
+        Let dropout & batchnorm layer be in eval mode
+        and require the model do not calculate gradient 
+        to reduce GPU calculation amount & memory usage.
         (https://blog.csdn.net/songyu0120/article/details/103884586)
         '''
         self.model.eval()
