@@ -54,7 +54,6 @@ def add_model_args(parser):
     parser.add_argument('--dropout_rate', type=float,
         default=0.2)
     parser.add_argument('--freeze_layers', type=int,
-        default=8,
         help='Number of freezed model (lower) layers.')
         
     parser.add_argument('--cpu_workers', type=int,

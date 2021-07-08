@@ -20,7 +20,10 @@ class FinetuneHandler:
         self.mode = mode
 
         self.tokenizer = init_tokenizer(args)
-        new_tokenizer_len = len(self.tokenizer)
+        if args.add_EOT:
+            new_tokenizer_len = len(self.tokenizer)
+        else:
+            new_tokenizer_len = None
         
         ''' Build model '''
         time_start = time.time()
@@ -28,8 +31,10 @@ class FinetuneHandler:
         if args.load_path is not None:
             checkpoint = torch.load(args.load_path)
             self.model.load_state_dict(checkpoint['model_state_dict'])
+            self.epoch = checkpoint['epoch']
         else:
             checkpoint = None
+            self.epoch = -1
         if torch.cuda.device_count() > 1:
             self.model = nn.DataParallel(self.model)
             self.parallel = True
@@ -65,12 +70,6 @@ class FinetuneHandler:
                                                      is_shuffle=False)
         else:
             raise NotImplementedError('Not supported handler mode.')
-        
-        ''' Initialize epoch '''
-        if checkpoint is not None:
-            self.epoch = checkpoint['epoch']
-        else:
-            self.epoch = -1
                                         
     def build_dataloader(self, filename, batch_size, is_shuffle):
         time_start = time.time()
