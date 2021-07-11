@@ -34,7 +34,7 @@ class CRMatchingDataset(Dataset):
         self.mask_id, self.unk_id = tokenizer.convert_tokens_to_ids(['[MASK]','[UNK]'])
         
         '''
-        pytorch的DataLoader多线程内存泄漏的简单的解决办法
+        Simple solution for memory leak of pytorch's DataLoader multiprocessing
         (https://github.com/pytorch/pytorch/issues/13246#issuecomment-823930907)
         '''
         self.dialog_data = pa.array(self.dialog_data)
@@ -114,11 +114,11 @@ class ChunkedRandomSampler(Sampler):
 
 def collate_fn(data_dict_batch):
     batch_dict = {}
-    cr_matching_collate(data_dict_batch, batch_dict, 'crm')
+    matching_collate(data_dict_batch, batch_dict, 'crm')
     return batch_dict
 
 
-def cr_matching_collate(data_dict_batch, batch_dict, task):
+def matching_collate(data_dict_batch, batch_dict, task):
     tids_key = f'{task}_token_ids'
     sids_key = f'{task}_segment_ids'
     amask_key = f'{task}_attention_mask'
@@ -131,7 +131,7 @@ def cr_matching_collate(data_dict_batch, batch_dict, task):
         if tids_key in sample:
             non_empty_batch.append(sample)
     if len(non_empty_batch) == 0:
-        print('++++++++++\nEmpty case of task RS!')
+        print(f'++++++++++\nEmpty case of task {task}!')
         print(data_dict_batch)
         print('++++++++++')
         return
