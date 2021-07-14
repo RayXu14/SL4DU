@@ -13,6 +13,7 @@ def batch2cuda(batch):
         try:
             cuda_batch[key] = batch[key].cuda()
         except: # There may be non-tensor data
+            cuda_batch[key] = batch[key]
             pass
     return cuda_batch
     

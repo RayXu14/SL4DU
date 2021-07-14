@@ -58,3 +58,7 @@ def check_output_dir(path: str):
 def check_output_dirs(paths):
     for path in paths:
         check_output_dir(path)
+
+
+def fetch_pyarrow(pa_array, index):
+    return pa_array[index].as_py()

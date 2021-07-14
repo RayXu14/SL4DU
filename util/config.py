@@ -95,6 +95,19 @@ def add_train_args(parser):
     parser.add_argument('--ckpt_name', type=str,
         default='best')
 
+    ''' Auxiliary Tasks '''
+    parser.add_argument('--use_NSP', action='store_true',
+        help='Whether to use Next Session Prediction task.')
+    parser.add_argument('--use_UR', action='store_true',
+        help='Whether to use Utterance Restoration task.')
+    parser.add_argument('--use_ID', action='store_true',
+        help='Whether to use Incoherence Detection task.')
+    parser.add_argument('--use_CD', action='store_true',
+        help='Whether to use Consistency Discrimination task.')
+    parser.add_argument('--margin', type=float,
+        default=0.6,
+        help='Margin of MarginRankingLoss.')
+
 
 def init_arguments(mode):
     parser = ArgumentParser()

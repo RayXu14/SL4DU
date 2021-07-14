@@ -177,14 +177,20 @@ class FinetuneHandler:
         print(f'Start training of epoch {self.epoch}.')
         
         ''' Initialize training '''
-        all_losses = dict()
-        all_losses['crmatching'] = []
-        
         self.model.train()
         
         virtual_batch_losses = dict()
         virtual_batch_losses['crmatching'] = 0.
         accumulate_batch = 0
+        
+        if self.args.use_NSP:
+            virtual_batch_losses['NSP'] = 0.
+        if self.args.use_UR:
+            virtual_batch_losses['UR'] = 0.
+        if self.args.use_ID:
+            virtual_batch_losses['ID'] = 0.
+        if self.args.use_CD:
+            virtual_batch_losses['CD'] = 0.
         
         for batch_idx, batch in enumerate(self.train_loader):
             _, losses = self.run_model(batch)
@@ -219,6 +225,6 @@ class FinetuneHandler:
                 accumulate_batch = 0
                 for task in virtual_batch_losses:
                     virtual_batch_losses[task] = 0.
-        
+                    
         torch.cuda.empty_cache()
         print(f'This training epoch take {(time.time() - time_start) / 3600}h.')
