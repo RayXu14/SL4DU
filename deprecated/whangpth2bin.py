@@ -1,7 +1,7 @@
 import torch
 
-whangpth_path = '/workspace/pretrained/post-bert-base-uncased/pytorch_model.pth'
-bin_path = '/workspace/pretrained/post-bert-base-uncased/pytorch_model.bin'
+whangpth_path = '../../pretrained/post-bert-base-uncased/pytorch_model.pth'
+bin_path = '../../pretrained/post-bert-base-uncased/pytorch_model.bin'
 
 state_dict = torch.load(whangpth_path, map_location='cpu')
 new_state_dict = dict()

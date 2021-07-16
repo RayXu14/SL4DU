@@ -280,10 +280,11 @@ class CRMatchingDataset(Dataset):
         Consistency Discrimination
         '''
         utterances = self._get_sample(remapped_index)['context']
-        if not self._ensure_dialog_length(utterances, remapped_index,
-                                          hard_limit=True, lower_bound = 3):
-            return None
+        self._ensure_dialog_length(utterances, remapped_index,
+                                lower_bound=3)
             
+        if len(utterances) < 3:
+            return None
         if len(utterances) == 3 or random.random() > 0.5:
             speaker = 0
         else:
