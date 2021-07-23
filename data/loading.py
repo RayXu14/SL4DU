@@ -179,10 +179,10 @@ class CRMatchingDataset(Dataset):
                 right_loc = random.randint(1, len(negative_utterances) - 1)
                 right_part = negative_utterances[right_loc:]
             else:
-              left_loc = random.randint(1, len(negative_utterances) - 1)
-              left_part = negative_utterances[:left_loc]
-              right_loc = random.randint(1, len(utterances) - 1)
-              right_part = utterances[right_loc:]
+                left_loc = random.randint(1, len(negative_utterances) - 1)
+                left_part = negative_utterances[:left_loc]
+                right_loc = random.randint(1, len(utterances) - 1)
+                right_part = utterances[right_loc:]
       
         left_context = self._concat_utterances(left_part)
         right_context = self._concat_utterances(right_part)
@@ -244,9 +244,10 @@ class CRMatchingDataset(Dataset):
         self._ensure_dialog_length(utterances, remapped_index)
       
         context_len = sum([len(utt) for utt in utterances]) + len(utterances) + 2
-        while context_len > self.args.max_context_len:
-            if context_len - self.args.max_context_len < len(utterances[0]):
-                utterances[0] = utterances[0][context_len - self.args.max_context_len:]
+        max_context_len = self.args.max_context_len + self.args.max_response_len
+        while context_len > max_context_len:
+            if context_len - max_context_len < len(utterances[0]):
+                utterances[0] = utterances[0][context_len - max_context_len:]
                 break
             else:
                 context_len -= (len(utterances.pop(0)) + 1)
@@ -261,13 +262,13 @@ class CRMatchingDataset(Dataset):
         cur_loc = 1
         locations = []
         for utt in utterances:
-            right_loc = min(cur_loc + len(utt) + 1, self.args.max_context_len - 1)
+            right_loc = min(cur_loc + len(utt) + 1, max_context_len - 1)
             locations.append((cur_loc, right_loc))
             cur_loc = right_loc
-            if cur_loc >= self.args.max_context_len - 1:
+            if cur_loc >= max_context_len - 1:
                 break
         
-        context = self._concat_utterances(utterances)[:self.args.max_context_len - 2]
+        context = self._concat_utterances(utterances)[:max_context_len - 2]
         context = ["[CLS]"] + context + ["[SEP]"]
         token_ids = self.tokenizer.convert_tokens_to_ids(context)
         segment_ids = [0] * len(token_ids)
@@ -280,11 +281,9 @@ class CRMatchingDataset(Dataset):
         Consistency Discrimination
         '''
         utterances = self._get_sample(remapped_index)['context']
-        self._ensure_dialog_length(utterances, remapped_index,
-                                lower_bound=3)
-            
         if len(utterances) < 3:
             return None
+            
         if len(utterances) == 3 or random.random() > 0.5:
             speaker = 0
         else:
