@@ -4,7 +4,7 @@ import os
 
 def add_task_args(parser):
     parser.add_argument('--task', type=str, required=True,
-        choices=['Ubuntu', 'Douban', 'E-commerce'],
+        choices=['Ubuntu', 'Douban', 'E-commerce', 'Daily'],
         help='Decide the method of raw file reading, ')
     parser.add_argument('--data_path', type=str,
         help='The directory where task data is saved.')
