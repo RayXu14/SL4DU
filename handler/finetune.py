@@ -195,6 +195,7 @@ class FinetuneHandler:
         for batch_idx, batch in enumerate(self.train_loader):
             _, losses = self.run_model(batch)
             ''' Calculate losses '''
+            losses *= self.args.train_batch_size / self.args.virtual_batch_size
             train_loss = 0.
             for task in losses:
                 train_loss += losses[task]
@@ -216,9 +217,7 @@ class FinetuneHandler:
                                 self.epoch, batch_idx + 1, len(self.train_loader),
                                 self.optimizer.param_groups[0]['lr'])]
                     for task in virtual_batch_losses:
-                        task_loss = virtual_batch_losses[task] * \
-                            self.args.train_batch_size / self.args.virtual_batch_size
-                        report.append(f'\t{task} Loss = {task_loss}')
+                        report.append(f'\t{task} Loss = {virtual_batch_losses[task]}')
                     print('\n'.join(report))
                     
                 ''' reset virtual batch accumulation '''
