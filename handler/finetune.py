@@ -195,9 +195,9 @@ class FinetuneHandler:
         for batch_idx, batch in enumerate(self.train_loader):
             _, losses = self.run_model(batch)
             ''' Calculate losses '''
-            losses *= self.args.train_batch_size / self.args.virtual_batch_size
             train_loss = 0.
             for task in losses:
+                losses[task] *= self.args.train_batch_size / self.args.virtual_batch_size
                 train_loss += losses[task]
                 virtual_batch_losses[task] += losses[task].item()
             accumulate_batch += batch['crm_label'].shape[0]
