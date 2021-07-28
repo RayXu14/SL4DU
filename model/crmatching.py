@@ -29,16 +29,16 @@ class CRMatchingModel(nn.Module):
                                             nn.Linear(self.model.config.hidden_size, 1))
         self.matching_loss_fct = nn.BCEWithLogitsLoss()
         
-        if args.use_UR:
+        if hasattr(args, 'use_UR') and args.use_UR:
             self.UR_cls = BertOnlyMLMHead(model_config)
             self.UR_loss_fct = nn.CrossEntropyLoss()
             
-        if args.use_ID:
+        if hasattr(args, 'use_ID') and args.use_ID:
             self.ID_cls = nn.Sequential(nn.Dropout(p=args.dropout_rate),
                                         nn.Linear(model_config.hidden_size * 2, 1))
             self.ID_loss_fct = nn.CrossEntropyLoss()
             
-        if args.use_CD:
+        if hasattr(args, 'use_CD') and args.use_CD:
             self.CD_cls = nn.Sequential(nn.Dropout(p=args.dropout_rate),
                                         nn.Linear(model_config.hidden_size, 1))
             self.CD_loss_fct = nn.MarginRankingLoss(args.margin)            

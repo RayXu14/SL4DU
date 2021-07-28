@@ -57,14 +57,14 @@ class CRMatchingDataset(Dataset):
             = self._build_cr_matching(remapped_index)
         
         ''' build auxiliary task data'''
-        if self.args.use_NSP:
+        if hasattr(self.args, 'use_NSP') and self.args.use_NSP:
             data_dict['nsp_label'], \
             (data_dict['nsp_token_ids'], 
              data_dict['nsp_segment_ids'], 
              data_dict['nsp_attention_mask']) \
                 = self._build_NSP(remapped_index)
                 
-        if self.args.use_UR:
+        if hasattr(self.args, 'use_UR') and self.args.use_UR:
             ur_sample = self._build_UR(remapped_index, data_dict['crm_token_ids'])
             if ur_sample is not None:
                 data_dict['ur_positions'], \
@@ -77,7 +77,7 @@ class CRMatchingDataset(Dataset):
                 assert len(data_dict['ur_token_ids']) == len(data_dict['ur_segment_ids']) \
                         == len(data_dict['ur_attention_mask'])
                         
-        if self.args.use_ID:
+        if hasattr(self.args, 'use_ID') and self.args.use_ID:
             data_dict['id_label'], \
             data_dict['id_token_ids'], \
             data_dict['id_segment_ids'], \
@@ -85,7 +85,7 @@ class CRMatchingDataset(Dataset):
             data_dict['id_locations'] \
                 = self._build_ID(remapped_index)
                 
-        if self.args.use_CD:
+        if hasattr(self.args, 'use_CD') and self.args.use_CD:
             cd_sample = self._build_CD(remapped_index)
             if cd_sample is not None:
                 (data_dict['cd_pos_token_ids'], 

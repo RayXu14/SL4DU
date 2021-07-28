@@ -109,6 +109,13 @@ def add_train_args(parser):
         help='Margin of MarginRankingLoss.')
 
 
+def add_infer_args(parser):
+    parser.add_argument('--log_name', type=str,
+        help='File name to save log.')
+    parser.add_argument('--assess', action='store_true',
+        help='Whether to assess the correlation between inf & ref.')
+
+
 def init_arguments(mode):
     parser = ArgumentParser()
 
@@ -125,6 +132,13 @@ def init_arguments(mode):
         add_pretrained_args(parser)
         add_model_args(parser)
         add_train_args(parser)
+    elif mode == 'test':
+        print('Initializing test arguments...')
+        add_task_args(parser)
+        add_pkl_data_args(parser)
+        add_pretrained_args(parser)
+        add_model_args(parser)
+        add_infer_args(parser)
     else:
         raise NotImplementedError('Not supported argument mode.')
 
