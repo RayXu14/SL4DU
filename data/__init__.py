@@ -1,7 +1,7 @@
 from data.preprocessors import UbuntuProcessor, \
                                DailyProcessor, \
                                PersonaChatProcessor, \
-                               GRADEDailyProcessor, \
+                               GRADEProcessor, \
                                USRPersonaChatProcessor, \
                                FEDProcessor
 from data.loading import CRMatchingDataset, \

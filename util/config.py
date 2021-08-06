@@ -6,7 +6,7 @@ def add_task_args(parser):
     parser.add_argument('--task', type=str, required=True,
         choices=['Ubuntu', 'Douban', 'E-commerce',
                  'Daily', 'PersonaChat',
-                 'GRADE-Daily', 'USR-PersonaChat', 'FED'],
+                 'GRADEdata', 'USR-PersonaChat', 'FED'],
         help='Decide the method of raw file reading, ')
     parser.add_argument('--data_path', type=str,
         help='The directory where task data is saved.')

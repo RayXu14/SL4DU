@@ -92,7 +92,7 @@ class DailyProcessor(BasicProcessor):
         self.process_file(self.args.raw_test_file, self.args.pkl_test_file)
 
 
-class GRADEDailyProcessor(BasicProcessor):
+class GRADEProcessor(BasicProcessor):
 
     def process_ctx(self, line):
         data = line.split('|||')
@@ -128,27 +128,21 @@ class GRADEDailyProcessor(BasicProcessor):
                                 'ctx.txt')
         contexts = self.read_file(ctx_path)
         
-        self.process_line = self.process_hyp
-        generator_hyp_path = os.path.join(self.args.data_path, 
-                                          'generator-hyp.txt')
-        generator_candidates = self.read_file(generator_hyp_path)
-        ranker_hyp_path = os.path.join(self.args.data_path, 
-                                       'ranker-hyp.txt')
-        ranker_candidates = self.read_file(ranker_hyp_path)
-        
-        self.process_line = self.process_score
-        generator_score_path = os.path.join(self.args.data_path,
-                                            'generator-score.txt')
-        generator_scores = self.read_file(generator_score_path)
-        ranker_score_path = os.path.join(self.args.data_path,
-                                         'ranker-score.txt')
-        ranker_scores = self.read_file(ranker_score_path)
-            
+        systems = [d for d in os.listdir(self.args.data_path)
+                       if d.startswith('hs-')]
         self.eval_data = []
-        self.merge_data(contexts, generator_candidates, generator_scores)
-        self.merge_data(contexts, ranker_candidates, ranker_scores)
+        for system in systems:
+            self.process_line = self.process_hyp
+            hyp_path = os.path.join(self.args.data_path,
+                                    system, 'hyp.txt')
+            candidates = self.read_file(hyp_path)
+            self.process_line = self.process_score
+            score_path = os.path.join(self.args.data_path,
+                                      system, 'score.txt')
+            scores = self.read_file(score_path)
+            self.merge_data(contexts, candidates, scores)
 
-        print(f'Processed {len(self.eval_data)} examples for GRADE-Daily.')
+        print(f'Processed {len(self.eval_data)} examples for GRADE data in {self.args.data_path}.')
         out_path = os.path.join(self.args.data_path, 
                                 self.args.pkl_test_file)
         with open(out_path, 'wb') as f:
