@@ -148,10 +148,8 @@ def auto_report_metrics(all_labels, all_preds, task):
                         f'R_2_10 = {numpy.average(list_r_2_10)}',
                         f'R_5_10 = {numpy.average(list_r_5_10)}'])
                         
-    if task in ['Ubuntu', 'E-commerce', 'Daily']:
-        main_metric = numpy.average(list_r_1_10)
-    elif task == 'Douban':
+    if task == 'Douban':
         main_metric = numpy.average(list_p_1)
     else:
-        raise NotImplementedError('Not supported task.')
+        main_metric = numpy.average(list_r_1_10)
     return report, main_metric

@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 def visualize_model(model):
     model_spec = []
     for name, param in model.named_parameters():
@@ -24,3 +27,15 @@ def tensor2np(tensor):
 
 def tensor2list(tensor):
     return tensor2np(tensor).tolist()
+    
+
+def smart_model_loading(model, checkpoint):
+    print('=== Smart Model Loading module reported. ===')
+    state_dict = OrderedDict()
+    for k, v in checkpoint['model_state_dict'].items():
+        if k in model.state_dict():
+            state_dict[k] = v
+        else:
+            print(f'SMART MODEL LOADING: {k} is ignored!')
+    model.load_state_dict(state_dict)
+    return model

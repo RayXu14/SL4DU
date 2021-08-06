@@ -1,4 +1,6 @@
-from data import UbuntuProcessor, DailyProcessor
+from data import UbuntuProcessor, \
+                 DailyProcessor, PersonaChatProcessor, \
+                 GRADEDailyProcessor, USRPersonaChatProcessor, FEDProcessor
 from util import init_arguments, print_arguments
 
 
@@ -7,6 +9,14 @@ def prepare_data(args):
         processor = UbuntuProcessor(args)
     elif args.task in ['Daily']:
         processor = DailyProcessor(args)
+    elif args.task in ['PersonaChat']:
+        processor = PersonaChatProcessor(args)
+    elif args.task in ['GRADE-Daily']:
+        processor = GRADEDailyProcessor(args)
+    elif args.task in ['USR-PersonaChat']:
+        processor = USRPersonaChatProcessor(args)
+    elif args.task in ['FED']:
+        processor = FEDProcessor(args)
     else:
         raise NotImplementedError('Not supported data preprocessing task.')
     processor.process_all()
