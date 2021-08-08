@@ -86,17 +86,17 @@ class CRMatchingModel(nn.Module):
     
     def CD_forward(self, pos_token_ids, pos_segment_ids, pos_attention_mask, \
                          neg_token_ids, neg_segment_ids, neg_attention_mask):
-        outputs = self.model(input_ids=pos_token_ids,
+        pos_outputs = self.model(input_ids=pos_token_ids,
                              attention_mask=pos_segment_ids,
                              token_type_ids=pos_attention_mask)
-        pos_cls_hidden = outputs.last_hidden_state[:, 0, :] # [batch_size, output_size]
+        pos_cls_hidden = pos_outputs.last_hidden_state[:, 0, :] # [batch_size, output_size]
         pos_logits = self.CD_cls(pos_cls_hidden)
         pos_pred = torch.sigmoid(pos_logits)
         
-        outputs = self.model(input_ids=neg_token_ids,
+        neg_outputs = self.model(input_ids=neg_token_ids,
                                 attention_mask=neg_segment_ids,
                                 token_type_ids=neg_attention_mask)
-        neg_cls_hidden = outputs.last_hidden_state[:, 0, :] # [batch_size, output_size]
+        neg_cls_hidden = neg_outputs.last_hidden_state[:, 0, :] # [batch_size, output_size]
         neg_logits = self.CD_cls(neg_cls_hidden)
         neg_pred = torch.sigmoid(neg_logits)
         loss = self.CD_loss_fct(pos_pred, neg_pred,
