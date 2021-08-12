@@ -9,19 +9,18 @@ https://www.jianshu.com/p/888c293de469
 # os.environ["NCCL_DEBUG"] = "INFO"
 
 import torch
-
-from util import init_arguments, print_arguments, \
-                 check_output_dir, auto_redirect_std
+                 
+from config import init_arguments, print_arguments
 from handler import FinetuneHandler
-
-mode = 'train'
+from util import auto_redirect_std, check_output_dir
       
       
 def train(args):
     check_output_dir(args.log_dir)
     auto_redirect_std(args.log_dir)
     print_arguments(args)
-    handler = FinetuneHandler(args, mode)
+    
+    handler = FinetuneHandler(args, mode='train')
     if args.eval_before_train:
         print('=' * 20 + f'\n\tEvaluation before training\n' + '=' * 20)
         handler.eval()
@@ -40,5 +39,5 @@ def train(args):
 
 
 if __name__ == '__main__':
-    args = init_arguments(mode)
+    args = init_arguments(mode='train')
     train(args) 

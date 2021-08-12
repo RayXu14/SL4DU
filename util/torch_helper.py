@@ -16,6 +16,9 @@ def batch2cuda(batch):
         try:
             cuda_batch[key] = batch[key].cuda()
         except: # There may be non-tensor data
+            '''
+            WARNING: Non-tensor data cannot be loaded by nn.DataParallel.
+            '''
             cuda_batch[key] = batch[key]
             pass
     return cuda_batch

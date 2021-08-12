@@ -11,8 +11,7 @@ from data import CRMatchingDataset, ChunkedRandomSampler, collate_fn, \
                  init_tokenizer
 from model import CRMatchingModel
 from util import batch2cuda, tensor2list, \
-                 visualize_model, auto_report_metrics, \
-                 smart_model_loading
+                 visualize_model, auto_report_metrics, smart_model_loading
 
 class FinetuneHandler:
 
@@ -56,7 +55,8 @@ class FinetuneHandler:
             if checkpoint is not None:
                 self.best_epoch = checkpoint['epoch']
                 self.best_metric = checkpoint['metric']
-                self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                self.optimizer.load_state_dict(
+                    checkpoint['optimizer_state_dict'])
 
             ''' Build data '''
             self.train_loader = self.build_dataloader(args.pkl_train_file,
@@ -104,7 +104,9 @@ class FinetuneHandler:
 
     def eval(self):
         time_start = time.time()
-        print('=' * 10 + f'\nStart evaluation of epoch {self.epoch}.\n' + '=' * 10)
+        print('=' * 10
+                + f'\nStart evaluation of epoch {self.epoch}.\n'
+                + '=' * 10)
         all_losses = []
         all_preds = []
         all_labels = []
@@ -129,7 +131,8 @@ class FinetuneHandler:
 
         ''' Save record '''
         if (not self.args.not_save_record) and hasattr(self, 'epoch'):
-            record_path = os.path.join(self.args.log_dir, f'epoch-{self.epoch}')
+            record_path = os.path.join(self.args.log_dir,
+                                       f'epoch-{self.epoch}')
             with open(record_path, 'w') as f:
                 for l, p in zip(all_labels, all_preds):
                     l = int(l)
@@ -138,12 +141,25 @@ class FinetuneHandler:
 
         ''' Print result '''
         mean_loss = sum(all_losses) / len(all_losses)
-        report, main_metric = auto_report_metrics(all_labels, all_preds, self.args.task)
+        report, main_metric = auto_report_metrics(all_labels,
+                                                  all_preds,
+                                                  self.args.task)
         print('\n'.join(['=' * 10,
                          f'Evaluation result of epoch {self.epoch}.',
                          f'\tMean loss = {mean_loss}',
                          report,
                          '=' * 10]))
+
+        ''' Assess correlation betweem predictions and labels '''
+        if self.args.assess:
+            s_score = scipy.stats.spearmanr(all_labels, all_preds)
+            p_score = scipy.stats.pearsonr(all_labels, all_preds)
+            report = '\n'.join(['=' * 10,
+                                f'Assessment result:',
+                                f'Spearman score = {s_score}',
+                                f'Pearson score  = {p_score}',
+                                '=' * 10])
+            print(report)
 
         if self.mode == 'train' and main_metric > self.best_metric:
             ''' Save checkpoint '''
@@ -152,7 +168,8 @@ class FinetuneHandler:
             self.best_epoch = self.epoch
             self.best_metric = main_metric
             if self.args.save_ckpt:
-                save_path = os.path.join(self.args.log_dir, self.args.ckpt_name)
+                save_path = os.path.join(self.args.log_dir,
+                                         self.args.ckpt_name)
                 if isinstance(self.model, nn.DataParallel):
                     model_state_dict = self.model.module.state_dict()
                 else:
@@ -160,9 +177,11 @@ class FinetuneHandler:
                 torch.save({'epoch': self.best_epoch,
                             'metric': self.best_metric,
                             'model_state_dict': model_state_dict,
-                            'optimizer_state_dict': self.optimizer.state_dict()},
+                            'optimizer_state_dict':
+                                self.optimizer.state_dict()},
                            save_path)
-                print(f'Ckeckpoint of epoch {self.epoch} is saved to {save_path}.')
+                print(f'Ckeckpoint of epoch {self.epoch}'
+                    + 'is saved to {save_path}.')
             else:
                 print('Discard checkpoint.')
         else:
@@ -185,25 +204,6 @@ class FinetuneHandler:
 
                 all_preds.extend(pred)
                 all_labels.extend(tensor2list(batch["crm_label"]))
-
-        ''' Print and save result '''
-        record_path = os.path.join('infer', self.args.log_name)
-        with open(record_path, 'w') as f:
-            if self.args.assess:
-                s_score = scipy.stats.spearmanr(all_labels, all_preds)
-                p_score = scipy.stats.pearsonr(all_labels, all_preds)
-                report = '\n'.join(['=' * 10,
-                             f'Assessment result:',
-                             f'Spearman score = {s_score}',
-                             f'Pearson score  = {p_score}',
-                             '=' * 10])
-                print(report)
-                f.write(report + '\n')
-
-            for l, p in zip(all_labels, all_preds):
-                l = int(l)
-                f.write(f'{l}\t{p}\n')
-        print(f'Infered record is saved.')
 
         torch.cuda.empty_cache()
         print(f'This Inferencing take {(time.time() - time_start) / 3600}h.')
@@ -235,7 +235,8 @@ class FinetuneHandler:
             ''' Calculate losses '''
             train_loss = 0.
             for task in losses:
-                losses[task] *= self.args.train_batch_size / self.args.virtual_batch_size
+                losses[task] *= self.args.train_batch_size \
+                                    / self.args.virtual_batch_size
                 train_loss += losses[task]
                 virtual_batch_losses[task] += losses[task].item()
             accumulate_batch += batch['crm_label'].shape[0]
@@ -251,11 +252,12 @@ class FinetuneHandler:
 
                 ''' View training process '''
                 if (batch_idx + 1) % self.args.train_view_every == 0:
-                    report = ['[Epoch: {:3d}][Iter: {:6d}/{:6d}][lr: {:7f}]'.format(
-                                self.epoch, batch_idx + 1, len(self.train_loader),
-                                self.optimizer.param_groups[0]['lr'])]
-                    for task in virtual_batch_losses:
-                        report.append(f'\t{task} Loss = {virtual_batch_losses[task]}')
+                    report = [
+                        '[Epoch: {:3d}][Iter: {:6d}/{:6d}][lr: {:7f}]'.format(
+                            self.epoch, batch_idx + 1, len(self.train_loader),
+                            self.optimizer.param_groups[0]['lr'])]
+                    for task, task_loss in virtual_batch_losses.items():
+                        report.append(f'\t{task} Loss = {task_loss}')
                     print('\n'.join(report))
 
                 ''' reset virtual batch accumulation '''
@@ -264,4 +266,4 @@ class FinetuneHandler:
                     virtual_batch_losses[task] = 0.
 
         torch.cuda.empty_cache()
-        print(f'This training epoch take {(time.time() - time_start) / 3600}h.')
+        print(f'This train epoch take {(time.time() - time_start) / 3600}h.')

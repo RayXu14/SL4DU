@@ -261,3 +261,21 @@ class PersonaChatProcessor(BasicProcessor):
             
         self.process_set('train', 1, self.args.pkl_train_file)
         self.process_set('valid', 9, self.args.pkl_valid_file)
+        
+        
+def get_processor(args):
+    if args.task in ['Ubuntu', 'Douban', 'E-commerce']:
+        return UbuntuProcessor(args)
+    elif args.task in ['Daily']:
+        return DailyProcessor(args)
+    elif args.task in ['PersonaChat']:
+        return PersonaChatProcessor(args)
+    elif args.task in ['GRADEdata']:
+        return GRADEProcessor(args)
+    elif args.task in ['USR-PersonaChat']:
+        return USRPersonaChatProcessor(args)
+    elif args.task in ['FED']:
+        return FEDProcessor(args)
+    else:
+        raise NotImplementedError('Not supported data preprocessing task.')
+    

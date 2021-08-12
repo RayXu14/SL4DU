@@ -27,16 +27,18 @@ class CRMatchingDataset(Dataset):
         if is_shuffle:
             keys = [sum([len(t) for t in x['context']]) + len(x['response'])
                         for x in self.samples]
-            self.id_map =  [i[0] for i in sorted(enumerate(keys), key=lambda x: x[1])]
+            self.id_map =  [i[0] for i in sorted(enumerate(keys),
+                                                 key=lambda x: x[1])]
             print('And shuffled.')
         else:
             self.id_map =  list(range(len(self.samples)))
 
         self.tokenizer = tokenizer
-        self.mask_id, self.unk_id = tokenizer.convert_tokens_to_ids(['[MASK]','[UNK]'])
+        self.mask_id, self.unk_id = \
+            tokenizer.convert_tokens_to_ids(['[MASK]','[UNK]'])
         
         '''
-        Simple solution for memory leak of pytorch's DataLoader multiprocessing
+        Simple solution for memory leak of pytorch's DataLoader
         (https://github.com/pytorch/pytorch/issues/13246#issuecomment-823930907)
         '''
         self.samples = pa.array(self.samples)
@@ -65,17 +67,22 @@ class CRMatchingDataset(Dataset):
                 = self._build_NSP(remapped_index)
                 
         if hasattr(self.args, 'use_UR') and self.args.use_UR:
-            ur_sample = self._build_UR(remapped_index, data_dict['crm_token_ids'])
+            ur_sample = self._build_UR(remapped_index,
+                                       data_dict['crm_token_ids'])
             if ur_sample is not None:
                 data_dict['ur_positions'], \
                 data_dict['ur_labels'], \
                 data_dict['ur_token_ids'] \
                     = ur_sample
-                assert len(data_dict['ur_token_ids']) == len(data_dict['crm_token_ids'])
-                data_dict['ur_segment_ids'] = deepcopy(data_dict['crm_segment_ids'])
-                data_dict['ur_attention_mask'] = deepcopy(data_dict['crm_attention_mask'])
-                assert len(data_dict['ur_token_ids']) == len(data_dict['ur_segment_ids']) \
-                        == len(data_dict['ur_attention_mask'])
+                assert len(data_dict['ur_token_ids']) \
+                    == len(data_dict['crm_token_ids'])
+                data_dict['ur_segment_ids'] \
+                    = deepcopy(data_dict['crm_segment_ids'])
+                data_dict['ur_attention_mask'] \
+                    = deepcopy(data_dict['crm_attention_mask'])
+                assert len(data_dict['ur_token_ids']) \
+                    == len(data_dict['ur_segment_ids']) \
+                    == len(data_dict['ur_attention_mask'])
                         
         if hasattr(self.args, 'use_ID') and self.args.use_ID:
             data_dict['id_label'], \
@@ -198,8 +205,9 @@ class CRMatchingDataset(Dataset):
         utt_lens = [len(utt) for utt in utterances]
         trimed_context_len = sum(utt_lens) + len(utt_lens) + 2
         while trimed_context_len > self.args.max_context_len:
-            if utt_lens[0] + 1 > trimed_context_len - self.args.max_context_len:
-                utt_lens[0] -= trimed_context_len - self.args.max_context_len
+            extra_length = trimed_context_len - self.args.max_context_len
+            if utt_lens[0] + 1 > extra_length:
+                utt_lens[0] -= extra_length
                 break
             else:
                 trimed_context_len -= (utt_lens.pop(0) + 1)
@@ -243,8 +251,10 @@ class CRMatchingDataset(Dataset):
       
         self._ensure_dialog_length(utterances, remapped_index)
       
-        context_len = sum([len(utt) for utt in utterances]) + len(utterances) + 2
-        max_context_len = self.args.max_context_len + self.args.max_response_len
+        context_len \
+            = sum([len(utt) for utt in utterances]) + len(utterances) + 2
+        max_context_len \
+            = self.args.max_context_len + self.args.max_response_len
         while context_len > max_context_len:
             if context_len - max_context_len < len(utterances[0]):
                 utterances[0] = utterances[0][context_len - max_context_len:]
@@ -281,7 +291,7 @@ class CRMatchingDataset(Dataset):
         Consistency Discrimination
         '''
         utterances = self._get_sample(remapped_index)['context']
-        if len(utterances) < 3:
+        if len(utterances) < 3:  # TODO
             return None
             
         if len(utterances) == 3 or random.random() > 0.5:
@@ -400,6 +410,7 @@ def collate_task(data_dict_batch, tensor_batch, task):
         tensor_batch[positions_key] = torch.LongTensor(batch[positions_key])
 
     if locations_key in data_dict_batch[0]:
-        tensor_batch[locations_key] = []
+        batch[locations_key] = []
         for data_dict in data_dict_batch:
-            tensor_batch[locations_key].append(data_dict[locations_key])
+            batch[locations_key].append(data_dict[locations_key])
+        tensor_batch[positions_key] = torch.LongTensor(batch[locations_key])

@@ -36,18 +36,21 @@ def check_output_file(path):
         input(f"Output target [{path}] already exists. Cover it? >")
 
 
-def check_output_dir(path: str):
+def check_output_dir(path: str, reserve_file=False):
     if os.path.exists(path) and os.listdir(path):
         print(f'Output directory [{path}] already exists and is not empty.')
-        input('Will cover it. Continue? >')
-        for p in os.listdir(path):
-            try:
-                print(f'Removing {path}/{p}...')
-                os.remove(f'{path}/{p}')
-                print('\t=> And succeeded.')
-            except:
-                print('\t=> But failed.')
-                pass
+        if reserve_file:
+            print(f'Reuse this directory and reserve all previous files.')
+        else:
+            input('Will cover it. Continue? >')
+            for p in os.listdir(path):
+                try:
+                    print(f'Removing {path}/{p}...')
+                    os.remove(f'{path}/{p}')
+                    print('\t=> And succeeded.')
+                except:
+                    print('\t=> But failed.')
+                    pass
     elif not os.path.exists(path):
         os.makedirs(path)
         print(f'Created {path}.')
@@ -55,9 +58,9 @@ def check_output_dir(path: str):
         print(f'{path} exist but is just empty. Will write to it.')
 
 
-def check_output_dirs(paths):
+def check_output_dirs(paths, reserve_file=False):
     for path in paths:
-        check_output_dir(path)
+        check_output_dir(path, reserve_file)
 
 
 def fetch_pyarrow(pa_array, index):

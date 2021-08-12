@@ -1,28 +1,14 @@
-from data import UbuntuProcessor, \
-                 DailyProcessor, PersonaChatProcessor, \
-                 GRADEProcessor, USRPersonaChatProcessor, FEDProcessor
-from util import init_arguments, print_arguments
+from data import get_processor
+from config import init_arguments, print_arguments
 
 
 def prepare_data(args):
-    if args.task in ['Ubuntu', 'Douban', 'E-commerce']:
-        processor = UbuntuProcessor(args)
-    elif args.task in ['Daily']:
-        processor = DailyProcessor(args)
-    elif args.task in ['PersonaChat']:
-        processor = PersonaChatProcessor(args)
-    elif args.task in ['GRADEdata']:
-        processor = GRADEProcessor(args)
-    elif args.task in ['USR-PersonaChat']:
-        processor = USRPersonaChatProcessor(args)
-    elif args.task in ['FED']:
-        processor = FEDProcessor(args)
-    else:
-        raise NotImplementedError('Not supported data preprocessing task.')
+    print_arguments(args)
+    
+    processor = get_processor(args)
     processor.process_all()
 
 
 if __name__ == '__main__':
     args = init_arguments(mode='preprocess')
-    print_arguments(args)
     prepare_data(args)
