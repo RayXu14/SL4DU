@@ -74,6 +74,8 @@ def _add_eval_args(parser):
         help='View evaluation process every this many steps.')
     parser.add_argument('--not_save_record', action='store_true',
         help='Whether to save evaluation result.')
+    parser.add_argument('--log_dir', type=str, required=True,
+        help='Directory to save log and checkpoints.')
     parser.add_argument('--assess', action='store_true',
         help='Whether to assess the correlation between preds & labels.')
 
@@ -94,8 +96,6 @@ def _add_train_args(parser):
         default=3e-5)
     parser.add_argument('--max_gradient_norm', type=float,
         default=5.)
-    parser.add_argument('--log_dir', type=str, required=True,
-        help='Directory to save log and checkpoints.')
     parser.add_argument('--save_ckpt', action='store_true',
         help='Whether to save checkpoints.')
     parser.add_argument('--ckpt_name', type=str,

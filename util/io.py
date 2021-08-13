@@ -26,8 +26,8 @@ def redirect_std(path: str):
     sys.stderr = Redirect(sys.stderr, path + '.err')
 
     
-def auto_redirect_std(dir_path):
-    path = os.path.join(dir_path, 'log')
+def auto_redirect_std(dir_path, log_name='log'):
+    path = os.path.join(dir_path, log_name)
     redirect_std(path)
 
 

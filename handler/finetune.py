@@ -65,7 +65,7 @@ class FinetuneHandler:
             self.eval_loader = self.build_dataloader(args.pkl_valid_file,
                                                      args.eval_batch_size,
                                                      is_shuffle=False)
-        elif mode == 'test':
+        elif mode == 'eval':
             self.eval_loader = self.build_dataloader(args.pkl_test_file,
                                                      args.eval_batch_size,
                                                      is_shuffle=False)
