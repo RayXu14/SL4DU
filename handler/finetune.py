@@ -181,7 +181,7 @@ class FinetuneHandler:
                                 self.optimizer.state_dict()},
                            save_path)
                 print(f'Ckeckpoint of epoch {self.epoch}'
-                    + 'is saved to {save_path}.')
+                    + f' is saved to {save_path}.')
             else:
                 print('Discard checkpoint.')
         else:

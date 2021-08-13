@@ -73,7 +73,7 @@ class CRMatchingModel(nn.Module):
         outputs = outputs.last_hidden_state
         losses = []
         for i, (sample_hiddens, loc_tuple_list) \
-            in enumerate(zip(outputs, locations.numpy())):
+            in enumerate(zip(outputs, locations)):
             utt_reps = []
             for loc_a, loc_b in loc_tuple_list:
                 utt_rep = sample_hiddens[loc_a:loc_b]

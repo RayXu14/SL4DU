@@ -410,7 +410,6 @@ def collate_task(data_dict_batch, tensor_batch, task):
         tensor_batch[positions_key] = torch.LongTensor(batch[positions_key])
 
     if locations_key in data_dict_batch[0]:
-        batch[locations_key] = []
+        tensor_batch[locations_key] = []
         for data_dict in data_dict_batch:
-            batch[locations_key].append(data_dict[locations_key])
-        tensor_batch[positions_key] = torch.LongTensor(batch[locations_key])
+            tensor_batch[locations_key].append(data_dict[locations_key])
