@@ -4,27 +4,37 @@ import os
 
 def _add_task_args(parser):
     parser.add_argument('--task', type=str, required=True,
+        choices=['RS', 'CLS'],
+        help='Decide downstream task: Response Selection / Classification')
+    parser.add_argument('--label_name', type=str,
+                        choices=['act', 'emotion'],
+                        help='The label name of DAS or ERC task.')
+    parser.add_argument('--n_class', type=int,
+                        help='The number of classes for DAS or ERC task.')
+    parser.add_argument('--dataset', type=str, required=True,
         choices=['Ubuntu', 'Douban', 'E-commerce',
                  'Daily', 'PersonaChat',
                  'GRADEdata', 'USR-PersonaChat', 'FED'],
         help='Decide the method of raw file reading, ')
-    parser.add_argument('--data_path', type=str, required=True,
-        help='The directory where task data is saved.')
 
 
 def _add_raw_data_args(parser):
+    parser.add_argument('--raw_data_path', type=str, required=True,
+        help='The directory where raw data is saved.')
     parser.add_argument('--raw_train_file', type=str,
         default='train.txt',
-        help='The path of the raw file of training set.')
+        help='The path of the raw file or directory of training set.')
     parser.add_argument('--raw_valid_file', type=str,
         default='valid.txt',
-        help='The path of the raw file of validation set.')
+        help='The path of the raw file or directory of validation set.')
     parser.add_argument('--raw_test_file', type=str,
         default='test.txt',
-        help='The path of the raw file of test set.')
+        help='The path of the raw file or directory of test set.')
 
 
 def _add_pkl_data_args(parser):
+    parser.add_argument('--pkl_data_path', type=str, required=True,
+        help='The directory where pkl data is saved.')
     parser.add_argument('--pkl_train_file', type=str,
         default='train.pkl',
         help='The path of the preprocessed file of training set.')
@@ -76,8 +86,6 @@ def _add_eval_args(parser):
         help='Whether to save evaluation result.')
     parser.add_argument('--log_dir', type=str, required=True,
         help='Directory to save log and checkpoints.')
-    parser.add_argument('--assess', action='store_true',
-        help='Whether to assess the correlation between preds & labels.')
 
 
 def _add_train_args(parser):
@@ -154,6 +162,11 @@ def init_arguments(mode):
         assert args.train_view_every % \
             (args.virtual_batch_size // args.train_batch_size) == 0, \
             'Ensure fairish visualization of the training process.'
+    if mode in ['train', 'eval'] and args.task in ['DAC', 'ERC']:
+        assert hasattr(args, 'n_class') and args.n_class is not None, \
+            f'Should set n_class for {args.task} task.'
+        assert hasattr(args, 'label_name') and args.label_name is not None, \
+            f'Should set label_name for {args.task} task.'
     if mode == 'eval':
         assert args.load_path is not None
     

@@ -11,7 +11,7 @@ https://www.jianshu.com/p/888c293de469
 import torch
                  
 from config import init_arguments, print_arguments
-from handler import FinetuneHandler
+from handler import get_handler
 from util import auto_redirect_std, check_output_dir
       
       
@@ -20,7 +20,7 @@ def train(args):
     auto_redirect_std(args.log_dir)
     print_arguments(args)
     
-    handler = FinetuneHandler(args, mode='train')
+    handler = get_handler(args, mode='train')
     if args.eval_before_train:
         print('=' * 20 + f'\n\tEvaluation before training\n' + '=' * 20)
         handler.eval()

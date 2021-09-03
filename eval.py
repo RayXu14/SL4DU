@@ -3,7 +3,7 @@ import os
 import torch
 
 from config import init_arguments, print_arguments
-from handler import FinetuneHandler
+from handler import get_handler
 from util import auto_redirect_std, check_output_dir
       
       
@@ -12,7 +12,7 @@ def eval(args):
     auto_redirect_std(args.log_dir, log_name='eval')
     print_arguments(args)
     
-    handler = FinetuneHandler(args, mode='eval')
+    handler = get_handler(args, mode='eval')
     handler.eval()
 
 

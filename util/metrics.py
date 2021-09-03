@@ -108,7 +108,7 @@ def MRR(target, logits, k=10):
     return float(reciprocal_rank) / count_nonzero
 
 
-def auto_report_metrics(all_labels, all_preds, task):
+def auto_report_RS(all_labels, all_preds, dataset):
     list_r_1_2 = []
     list_r_1_10 = []
     list_r_2_10 = []
@@ -148,7 +148,7 @@ def auto_report_metrics(all_labels, all_preds, task):
                         f'R_2_10 = {numpy.average(list_r_2_10)}',
                         f'R_5_10 = {numpy.average(list_r_5_10)}'])
                         
-    if task == 'Douban':
+    if dataset == 'Douban':
         main_metric = numpy.average(list_p_1)
     else:
         main_metric = numpy.average(list_r_1_10)

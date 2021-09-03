@@ -1,19 +1,16 @@
+from abc import abstractmethod
 import os
 import time
 
-import scipy.stats
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 
-from data import CRMatchingDataset, ChunkedRandomSampler, collate_fn, \
-                 init_tokenizer
-from model import CRMatchingModel
-from util import batch2cuda, tensor2list, \
-                 visualize_model, auto_report_metrics, smart_model_loading
+from data import get_dataset, ChunkedRandomSampler, collate_fn, init_tokenizer
+from model import get_model
+from util import batch2cuda, tensor2list, visualize_model, smart_model_loading
 
-class FinetuneHandler:
+class BasicFinetuneHandler:
 
     def __init__(self, args, mode):
         self.args = args
@@ -27,7 +24,7 @@ class FinetuneHandler:
 
         ''' Build model '''
         time_start = time.time()
-        self.model = CRMatchingModel(args, new_tokenizer_len)
+        self.model = get_model(args, new_tokenizer_len)
         if args.load_path is not None:
             checkpoint = torch.load(args.load_path)
             self.model = smart_model_loading(self.model, checkpoint)
@@ -61,23 +58,23 @@ class FinetuneHandler:
             ''' Build data '''
             self.train_loader = self.build_dataloader(args.pkl_train_file,
                                                       args.train_batch_size,
-                                                      is_shuffle=True)
+                                                      is_train=True)
             self.eval_loader = self.build_dataloader(args.pkl_valid_file,
                                                      args.eval_batch_size,
-                                                     is_shuffle=False)
+                                                     is_train=False)
         elif mode == 'eval':
             self.eval_loader = self.build_dataloader(args.pkl_test_file,
                                                      args.eval_batch_size,
-                                                     is_shuffle=False)
+                                                     is_train=False)
         else:
             raise NotImplementedError('Not supported handler mode.')
 
-    def build_dataloader(self, filename, batch_size, is_shuffle):
+    def build_dataloader(self, filename, batch_size, is_train):
         time_start = time.time()
-        dataset = CRMatchingDataset(self.args,
-                                    filename,
-                                    self.tokenizer,
-                                    is_shuffle=is_shuffle)
+        dataset = get_dataset(self.args,
+                              filename,
+                              self.tokenizer,
+                              is_train=is_train)
         chunkedSampler = ChunkedRandomSampler(dataset, batch_size)
         dataloader = DataLoader(dataset,
                                 batch_size=batch_size,
@@ -101,6 +98,13 @@ class FinetuneHandler:
             for task in losses:
                 losses[task] = losses[task].mean()
         return logits, losses
+    
+    def logits2preds(self, logits):
+        raise NotImplementedError('Should define how logits are interpreted.')
+    
+    @abstractmethod
+    def report(self):
+        pass
 
     def eval(self):
         time_start = time.time()
@@ -120,46 +124,16 @@ class FinetuneHandler:
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.eval_loader):
                 logits, losses = self.run_model(batch)
-                pred = tensor2list(torch.sigmoid(logits))
 
-                all_losses.append(losses['crmatching'].item())
-                all_preds.extend(pred)
-                all_labels.extend(tensor2list(batch["crm_label"]))
+                all_losses.append(losses['main'].item())
+                all_preds.extend(tensor2list(self.logits2preds(logits)))
+                all_labels.extend(tensor2list(batch['main_label']))
 
                 if (batch_idx + 1) % self.args.eval_view_every == 0:
                     print(f'Evaluated {batch_idx + 1}-th batches.')
 
-        ''' Save record '''
-        if (not self.args.not_save_record) and hasattr(self, 'epoch'):
-            record_path = os.path.join(self.args.log_dir,
-                                       f'epoch-{self.epoch}')
-            with open(record_path, 'w') as f:
-                for l, p in zip(all_labels, all_preds):
-                    l = int(l)
-                    f.write(f'{l}\t{p}\n')
-            print(f'Record of epoch {self.epoch} is recorded.')
-
-        ''' Print result '''
-        mean_loss = sum(all_losses) / len(all_losses)
-        report, main_metric = auto_report_metrics(all_labels,
-                                                  all_preds,
-                                                  self.args.task)
-        print('\n'.join(['=' * 10,
-                         f'Evaluation result of epoch {self.epoch}.',
-                         f'\tMean loss = {mean_loss}',
-                         report,
-                         '=' * 10]))
-
-        ''' Assess correlation betweem predictions and labels '''
-        if self.args.assess:
-            s_score = scipy.stats.spearmanr(all_labels, all_preds)
-            p_score = scipy.stats.pearsonr(all_labels, all_preds)
-            report = '\n'.join(['=' * 10,
-                                f'Assessment result:',
-                                f'Spearman score = {s_score}',
-                                f'Pearson score  = {p_score}',
-                                '=' * 10])
-            print(report)
+        ''' Report '''
+        main_metric = self.report(all_preds, all_labels, all_losses)
 
         if self.mode == 'train' and main_metric > self.best_metric:
             ''' Save checkpoint '''
@@ -190,24 +164,6 @@ class FinetuneHandler:
         torch.cuda.empty_cache()
         print(f'This Evaluation take {(time.time() - time_start) / 3600}h.')
 
-    def infer(self):
-        time_start = time.time()
-        print('=' * 10 + f'\nStart inferencing.\n' + '=' * 10)
-        all_preds = []
-        all_labels = []
-
-        self.model.eval()
-        with torch.no_grad():
-            for batch_idx, batch in enumerate(self.eval_loader):
-                logits, _ = self.run_model(batch)
-                pred = tensor2list(torch.sigmoid(logits))
-
-                all_preds.extend(pred)
-                all_labels.extend(tensor2list(batch["crm_label"]))
-
-        torch.cuda.empty_cache()
-        print(f'This Inferencing take {(time.time() - time_start) / 3600}h.')
-
     def train_epoch(self):
         time_start = time.time()
         self.epoch += 1
@@ -218,7 +174,7 @@ class FinetuneHandler:
         self.model.train()
 
         virtual_batch_losses = dict()
-        virtual_batch_losses['crmatching'] = 0.
+        virtual_batch_losses['main'] = 0.
         accumulate_batch = 0
 
         if self.args.use_NSP:
@@ -239,7 +195,7 @@ class FinetuneHandler:
                                     / self.args.virtual_batch_size
                 train_loss += losses[task]
                 virtual_batch_losses[task] += losses[task].item()
-            accumulate_batch += batch['crm_label'].shape[0]
+            accumulate_batch += batch['main_label'].shape[0]
 
             ''' Update '''
             train_loss.backward()
@@ -267,3 +223,4 @@ class FinetuneHandler:
 
         torch.cuda.empty_cache()
         print(f'This train epoch take {(time.time() - time_start) / 3600}h.')
+        
