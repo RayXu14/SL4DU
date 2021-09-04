@@ -14,7 +14,7 @@ class CLSHandler(BasicFinetuneHandler):
         assert len(preds) == len(labels)
 
         report = []
-        if self.args.task == 'emotion' and self.args.dataset == 'Daily':
+        if self.args.label_name == 'emotion' and self.args.dataset == 'Daily':
             micro_f1 = f1_score(labels, preds, average='micro',
                                 labels=[0, 2, 3, 4, 5, 6])
             report.append(f'Micro F1\t= {micro_f1}')
