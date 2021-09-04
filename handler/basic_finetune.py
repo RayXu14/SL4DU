@@ -75,7 +75,10 @@ class BasicFinetuneHandler:
                               filename,
                               self.tokenizer,
                               is_train=is_train)
-        chunkedSampler = ChunkedRandomSampler(dataset, batch_size)
+        if is_train:
+            chunkedSampler = ChunkedRandomSampler(dataset, batch_size)
+        else:
+            chunkedSampler = None
         dataloader = DataLoader(dataset,
                                 batch_size=batch_size,
                                 num_workers=self.args.cpu_workers,
