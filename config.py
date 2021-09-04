@@ -162,7 +162,7 @@ def init_arguments(mode):
         assert args.train_view_every % \
             (args.virtual_batch_size // args.train_batch_size) == 0, \
             'Ensure fairish visualization of the training process.'
-    if mode in ['train', 'eval'] and args.task in ['DAC', 'ERC']:
+    if mode in ['train', 'eval'] and args.task in ['CLS']:
         assert hasattr(args, 'n_class') and args.n_class is not None, \
             f'Should set n_class for {args.task} task.'
         assert hasattr(args, 'label_name') and args.label_name is not None, \
