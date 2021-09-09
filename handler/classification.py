@@ -16,7 +16,7 @@ class CLSHandler(BasicFinetuneHandler):
         report = []
         if self.args.label_name == 'emotion' and self.args.dataset == 'Daily':
             micro_f1 = f1_score(labels, preds, average='micro',
-                                labels=[0, 2, 3, 4, 5, 6])
+                                labels=[1, 2, 3, 4, 5, 6])
             report.append(f'Micro F1\t= {micro_f1}')
         macro_f1 = f1_score(labels, preds, average='macro')
         report.append(f'Macro F1\t= {macro_f1}')
