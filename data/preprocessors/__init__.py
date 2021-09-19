@@ -1,4 +1,5 @@
-from data.preprocessors.classification import DailyProcessor
+from data.preprocessors.classification import DailyProcessor, \
+                                              SwDAProcessor
 from data.preprocessors.response_selection import UbuntuProcessor, \
                                                   DailyRSProcessor, \
                                                   PersonaChatRSProcessor
@@ -15,5 +16,7 @@ def get_processor(args):
     elif args.task == 'CLS':
         if args.dataset in ['Daily']:
             return DailyProcessor(args)
+        if args.dataset in ['SwDA']:
+            return SwDAProcessor(args)
     raise NotImplementedError('Not supported task-dataset combination.')
     

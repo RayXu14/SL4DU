@@ -1,0 +1,4 @@
+[submodule "data/preprocessors/swda"]
+	path = data/preprocessors/swda
+	url = https://github.com/glicerico/swda.git
+	branch = data_split

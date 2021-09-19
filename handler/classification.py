@@ -20,6 +20,8 @@ class CLSHandler(BasicFinetuneHandler):
             report.append(f'Micro F1\t= {micro_f1}')
         macro_f1 = f1_score(labels, preds, average='macro')
         report.append(f'Macro F1\t= {macro_f1}')
+        micro_precision = precision_score(labels, preds, average='micro') 
+        report.append(f'Micro P\t= {micro_precision}')
         macro_precision = precision_score(labels, preds, average='macro') 
         report.append(f'Macro P\t= {macro_precision}')
         macro_recall = recall_score(labels, preds, average='macro')    

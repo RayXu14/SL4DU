@@ -13,7 +13,7 @@ def _add_task_args(parser):
                         help='The number of classes for DAS or ERC task.')
     parser.add_argument('--dataset', type=str, required=True,
         choices=['Ubuntu', 'Douban', 'E-commerce',
-                 'Daily', 'PersonaChat',
+                 'Daily', 'SwDA', 'PersonaChat',
                  'GRADEdata', 'USR-PersonaChat', 'FED'],
         help='Decide the method of raw file reading, ')
 
