@@ -77,15 +77,19 @@ class SwDAProcessor(BasicProcessor):
             dialog_data.append({'dialog': dialog,
                                 'acts': acts,})
     
-        label_encoder = LabelEncoder()
-        label_encoder.fit(all_acts)
+        if not hasattr(self, 'label_encoder'):
+            self.label_encoder = LabelEncoder()
+            self.label_encoder.fit(all_acts)
+            classes = self.label_encoder.classes_
+        else:
+            classes = None
         for sample in dialog_data:
             acts = sample['acts']
             for i in range(len(acts)):
                 if acts[i] is not None:
-                    acts[i] = label_encoder.transform([acts[i]])[0]
+                    acts[i] = self.label_encoder.transform([acts[i]])[0]
             
-        return dialog_data, label_encoder.classes_
+        return dialog_data, classes
 
     def process_set(self, in_dir, out_file):
         in_dir = os.path.join(self.args.raw_data_path, in_dir)
@@ -94,8 +98,9 @@ class SwDAProcessor(BasicProcessor):
         print(f'Processed {len(dialog_data)} cases from {in_dir}')
         
         self.write_pkl(dialog_data, out_file)
-        class_path = os.path.join(self.args.pkl_data_path, out_file + '.classes')
-        with open(class_path, 'w') as f:
-            for cls in classes:
-                f.write(cls + '\n')
-        print(f'==> Saved classes to {class_path}.')
+        if classes is not None:
+            class_path = os.path.join(self.args.pkl_data_path, out_file + '.classes')
+            with open(class_path, 'w') as f:
+                for cls in classes:
+                    f.write(cls + '\n')
+            print(f'==> Saved classes to {class_path}.')
