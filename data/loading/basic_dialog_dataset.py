@@ -198,7 +198,10 @@ class BasicDialogDataset(Dataset):
             if random.random() > 0.5:
                 left_loc = random.randint(1, len(utterances) - 1)
                 left_part = utterances[:left_loc]
-                right_loc = random.randint(1, len(negative_utterances) - 1)
+                try:
+                    right_loc = random.randint(1, len(negative_utterances) - 1)
+                except:
+                    breakpoint()
                 right_part = negative_utterances[right_loc:]
             else:
                 left_loc = random.randint(1, len(negative_utterances) - 1)
@@ -282,7 +285,10 @@ class BasicDialogDataset(Dataset):
                 context_len -= (len(utterances.pop(0)) + 1)
       
         random_utterances = self._get_sample()['context']
-        random_utt_ix = random.randint(0, len(random_utterances) - 1)
+        try:
+            random_utt_ix = random.randint(0, len(random_utterances) - 1)
+        except:
+            breakpoint()
         random_utt = random_utterances[random_utt_ix]
         label = random.randint(0, len(utterances) - 1)
         utterances[label] = random_utt
@@ -324,7 +330,10 @@ class BasicDialogDataset(Dataset):
         positive_utt = [utt_pair[1]]
         
         random_utterances = self._get_sample()['context']
-        random_utt_ix = random.randint(0, len(random_utterances) - 1)
+        try:
+            random_utt_ix = random.randint(0, len(random_utterances) - 1)
+        except:
+            breakpoint()
         negative_utt = [random_utterances[random_utt_ix]]
 
         base_utt = self._concat_utterances(base_utt)

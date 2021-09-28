@@ -62,8 +62,10 @@ class SwDAProcessor(BasicProcessor):
                 # Remove data rows that end up empty after cleaning
                 if text == ' ':
                     continue
-                    
-                text = self.tokenizer.tokenize(text.strip())
+                
+                text = text.strip()
+                if self.tokenization:
+                    text = self.tokenizer.tokenize(text)
                 
                 act = utt.damsl_act_tag()
                 if act == '+':
@@ -94,8 +96,9 @@ class SwDAProcessor(BasicProcessor):
     def process_set(self, in_dir, out_file):
         in_dir = os.path.join(self.args.raw_data_path, in_dir)
 
+        self.tokenization = True
         dialog_data, classes = self.read_raw(in_dir)
-        print(f'Processed {len(dialog_data)} cases from {in_dir}')
+        print(f'Read {len(dialog_data)} cases from {in_dir}')
         
         self.write_pkl(dialog_data, out_file)
         if classes is not None:
@@ -104,3 +107,20 @@ class SwDAProcessor(BasicProcessor):
                 for cls in classes:
                     f.write(cls + '\n')
             print(f'==> Saved classes to {class_path}.')
+            
+    def make_post_training_corpus(self):
+        in_dir = os.path.join(self.args.raw_data_path, self.args.raw_train_file)
+
+        self.tokenization = False
+        dialog_data, _ = self.read_raw(in_dir)
+        print(f'Read {len(dialog_data)} cases from {in_dir}')
+        
+        post_file = os.path.join(self.args.pkl_data_path,
+                                 self.args.raw_train_file + '.post')
+        with open(post_file, 'w') as f:
+            for example in dialog_data:
+                dialog = example['dialog']
+                for utt in dialog:
+                    f.write(utt + '\n')
+                f.write('\n')
+        
