@@ -5,7 +5,6 @@ from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
 from data.preprocessors.basic_processor import BasicProcessor
-from data.preprocessors.swda.swda import CorpusReader
 
 
 class DailyProcessor(BasicProcessor):
@@ -42,6 +41,9 @@ class DailyProcessor(BasicProcessor):
 
 class SwDAProcessor(BasicProcessor):
     def read_raw(self, in_dir):
+
+        from data.preprocessors.swda.swda import CorpusReader
+
         corpus = CorpusReader(in_dir)
         dialog_data = []
         all_acts = []
