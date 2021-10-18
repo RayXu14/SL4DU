@@ -42,7 +42,7 @@ class DailyProcessor(BasicProcessor):
 class SwDAProcessor(BasicProcessor):
     def read_raw(self, in_dir):
 
-        from data.preprocessors.swda.swda import CorpusReader
+        from data.data_rep.swda.swda import CorpusReader
 
         corpus = CorpusReader(in_dir)
         dialog_data = []
