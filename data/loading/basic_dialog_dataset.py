@@ -326,19 +326,20 @@ class BasicDialogDataset(Dataset):
         utterances = utterances[speaker::2]
 
         utt_pair = random.sample(utterances, 2)
-        base_utt = [utt_pair[0]]
-        positive_utt = [utt_pair[1]]
+        base_utt = utt_pair[0]
+        positive_utt = utt_pair[1]
         
         random_utterances = self._get_sample()['context']
-        try:
-            random_utt_ix = random.randint(0, len(random_utterances) - 1)
-        except:
-            breakpoint()
-        negative_utt = [random_utterances[random_utt_ix]]
+        #try:
+        #    random_utt_ix = random.randint(0, len(random_utterances) - 1)
+        #except:
+        #    breakpoint()
+        #negative_utt = [random_utterances[random_utt_ix]]
+        negative_utt = random.sample(random_utterances, 1)[0]
 
-        base_utt = self._concat_utterances(base_utt)
-        positive_utt = self._concat_utterances(positive_utt)
-        negative_utt = self._concat_utterances(negative_utt)
+        #base_utt = self._concat_utterances(base_utt)
+        #positive_utt = self._concat_utterances(positive_utt)
+        #negative_utt = self._concat_utterances(negative_utt)
 
         return self._auto_pack(base_utt, positive_utt), \
                self._auto_pack(base_utt, negative_utt)

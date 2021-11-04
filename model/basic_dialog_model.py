@@ -3,6 +3,7 @@ import os
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from transformers import AutoConfig, AutoModel
 from transformers.models.bert.modeling_bert import BertOnlyMLMHead
 
@@ -41,7 +42,6 @@ class BasicDialogModel(nn.Module):
         if hasattr(args, 'use_CD') and args.use_CD:
             self.CD_cls = nn.Sequential(nn.Dropout(p=args.dropout_rate),
                                  nn.Linear(self.model_config.hidden_size, 1))
-            self.CD_loss_fct = nn.MarginRankingLoss(args.margin)            
 
     def _init_main_task(self):
         raise NotImplementedError('No main task pointed.')
@@ -102,8 +102,7 @@ class BasicDialogModel(nn.Module):
         neg_logits = self.CD_cls(neg_cls_hidden).squeeze(-1)
         neg_pred = torch.sigmoid(neg_logits)
         
-        loss = self.CD_loss_fct(pos_pred, neg_pred,
-                            torch.ones(pos_pred.shape[0]).to(pos_pred.device))
+        loss = torch.mean(F.relu(self.args.margin - pos_pred + neg_pred))
         return loss
 
     def forward(self, batch):
