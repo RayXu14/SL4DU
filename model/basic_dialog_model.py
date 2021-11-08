@@ -42,6 +42,7 @@ class BasicDialogModel(nn.Module):
         if hasattr(args, 'use_CD') and args.use_CD:
             self.CD_cls = nn.Sequential(nn.Dropout(p=args.dropout_rate),
                                  nn.Linear(self.model_config.hidden_size, 1))
+            self.CD_loss_fct = nn.BCEWithLogitsLoss()        
 
     def _init_main_task(self):
         raise NotImplementedError('No main task pointed.')
@@ -86,23 +87,13 @@ class BasicDialogModel(nn.Module):
             losses.append(loss)
         return sum(losses) / len(losses)
     
-    def CD_forward(self, pos_token_ids, pos_segment_ids, pos_attention_mask,
-                         neg_token_ids, neg_segment_ids, neg_attention_mask):
-        pos_outputs = self.model(input_ids=pos_token_ids,
-                             attention_mask=pos_segment_ids,
-                             token_type_ids=pos_attention_mask)
-        pos_cls_hidden = pos_outputs.last_hidden_state[:, 0, :]
-        pos_logits = self.CD_cls(pos_cls_hidden).squeeze(-1)
-        pos_pred = torch.sigmoid(pos_logits)
-        
-        neg_outputs = self.model(input_ids=neg_token_ids,
-                                attention_mask=neg_segment_ids,
-                                token_type_ids=neg_attention_mask)
-        neg_cls_hidden = neg_outputs.last_hidden_state[:, 0, :]
-        neg_logits = self.CD_cls(neg_cls_hidden).squeeze(-1)
-        neg_pred = torch.sigmoid(neg_logits)
-        
-        loss = torch.mean(F.relu(self.args.margin - pos_pred + neg_pred))
+    def CD_forward(self, label, token_ids, segment_ids, attention_mask):
+        outputs = self.model(input_ids=token_ids,
+                             attention_mask=attention_mask,
+                             token_type_ids=segment_ids)
+        cls_hidden = outputs.last_hidden_state[:, 0, :] # [batch_size, hidden]
+        logits = self.matching_cls(cls_hidden).squeeze(-1) # [batch_size,]
+        loss = self.matching_loss_fct(logits, label)
         return loss
 
     def forward(self, batch):
@@ -135,12 +126,10 @@ class BasicDialogModel(nn.Module):
                                            batch['id_label'],
                                            batch['id_locations'])
         
-        if 'cd_pos_token_ids' in batch:
-            loss_dict['CD'] = self.CD_forward(batch['cd_pos_token_ids'],
-                                           batch['cd_pos_segment_ids'],
-                                           batch['cd_pos_attention_mask'],
-                                           batch['cd_neg_token_ids'],
-                                           batch['cd_neg_segment_ids'],
-                                           batch['cd_neg_attention_mask'])
+        if 'cd_token_ids' in batch:
+            loss_dict['CD'] = self.CD_forward(batch['cd_label'],
+                                              batch['cd_token_ids'],
+                                              batch['cd_segment_ids'],
+                                              batch['cd_attention_mask'])
 
         return logits, loss_dict

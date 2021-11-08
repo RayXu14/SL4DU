@@ -98,12 +98,10 @@ class BasicDialogDataset(Dataset):
             if hasattr(self.args, 'use_CD') and self.args.use_CD:
                 cd_sample = self._build_CD(remapped_index)
                 if cd_sample is not None:
-                    (data_dict['cd_pos_token_ids'], 
-                     data_dict['cd_pos_segment_ids'], 
-                     data_dict['cd_pos_attention_mask']), \
-                    (data_dict['cd_neg_token_ids'], 
-                     data_dict['cd_neg_segment_ids'], 
-                     data_dict['cd_neg_attention_mask']) \
+                    data_dict['cd_label'], \
+                    (data_dict['cd_token_ids'], 
+                     data_dict['cd_segment_ids'], 
+                     data_dict['cd_attention_mask']) \
                         = cd_sample
         
         return data_dict
@@ -316,30 +314,17 @@ class BasicDialogDataset(Dataset):
         Consistency Discrimination
         '''
         utterances = self._get_sample(remapped_index)['context']
-        if len(utterances) < 3:  # TODO
+        if not self._ensure_dialog_length(utterances, remapped_index):
             return None
-            
-        if len(utterances) == 3 or random.random() > 0.5:
-            speaker = 0
-        else:
-            speaker = 1
-        utterances = utterances[speaker::2]
 
         utt_pair = random.sample(utterances, 2)
         base_utt = utt_pair[0]
-        positive_utt = utt_pair[1]
         
-        random_utterances = self._get_sample()['context']
-        #try:
-        #    random_utt_ix = random.randint(0, len(random_utterances) - 1)
-        #except:
-        #    breakpoint()
-        #negative_utt = [random_utterances[random_utt_ix]]
-        negative_utt = random.sample(random_utterances, 1)[0]
-
-        #base_utt = self._concat_utterances(base_utt)
-        #positive_utt = self._concat_utterances(positive_utt)
-        #negative_utt = self._concat_utterances(negative_utt)
-
-        return self._auto_pack(base_utt, positive_utt), \
-               self._auto_pack(base_utt, negative_utt)
+        if random.random() > 0.5:
+            positive_utt = utt_pair[1]
+            return 1, self._auto_pack(base_utt, positive_utt)
+        
+        else:        
+            random_utterances = self._get_sample()['context']
+            negative_utt = random.sample(random_utterances, 1)[0]
+            return 0, self._auto_pack(base_utt, negative_utt)

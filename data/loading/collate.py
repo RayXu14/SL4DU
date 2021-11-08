@@ -6,8 +6,7 @@ def collate_fn(data_dict_batch):
     collate_task(data_dict_batch, tensor_batch, 'nsp')
     collate_task(data_dict_batch, tensor_batch, 'ur')
     collate_task(data_dict_batch, tensor_batch, 'id')
-    collate_task(data_dict_batch, tensor_batch, 'cd_pos')
-    collate_task(data_dict_batch, tensor_batch, 'cd_neg')
+    collate_task(data_dict_batch, tensor_batch, 'cd')
     return tensor_batch
 
 
