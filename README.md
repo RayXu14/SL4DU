@@ -90,14 +90,11 @@ Using [Whang's repo](https://github.com/taesunwhang/BERT-ResSel) or [our fork](h
 
 Remember to transform the saved model to our form using *deprecated/whangpth2bin.py*.
 
+We provide our [pretrained models](https://www.dropbox.com/sh/l9ityw69ls3qyyj/AAARoLxHAP4f4lJ-twJ8IDpia?dl=0) (already transformed)
 
 ### Additional information for pretraining settings
 set the number of epochs as 2 for post-training with 10 duplication data and set the virtual batch size as 384
 
-### Provided pretrained models
-* Ubuntu
-* Douban
-* E-commerce
 
 ## P.S.
 1. warmup和lr_decay未应用，不过目前不注重调参
