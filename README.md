@@ -25,7 +25,7 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
     2. 各种网络限制
 -->
 
-## Reproduce step
+## Reproduce step: an example
 1. Initialize directories
     ```
     SL4DU
