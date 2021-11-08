@@ -1,17 +1,17 @@
 # SL4DU
 
-## 环境
-### 选项一：容器环境
+## Environment
+### Option 1: container
 frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
 
 ```bash
 ~$ docker run --runtime=nvidia -it --rm -v $HOME/SL4DU:/workspace frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
 ```
 
-### 选项二：自建环境
-* Python==3.9 ([3.10安装一些包目前可能出问题](https://exerror.com/building-wheel-for-numpy-pyproject-toml/))
-* numpy (自动由scipy依赖安装)
-* scipy (可能遇到问题->[解决方案](https://stackoverflow.com/questions/11114225/installing-scipy-and-numpy-using-pip))
+### Option 2: build from scatch
+* Python==3.9 ([There may be some problem for numpy with 3.10](https://exerror.com/building-wheel-for-numpy-pyproject-toml/))
+* numpy (can be automatically installed when installing scipy)
+* scipy (if you have problem, see this [solution](https://stackoverflow.com/questions/11114225/installing-scipy-and-numpy-using-pip))
 * torch==1.8
 * pyarrow
 * tqdm
@@ -25,44 +25,43 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
     2. 各种网络限制
 -->
 
-## 复现步骤
-1. 初始化文件夹结构
+## Reproduce step
+1. Initialize directories
     ```
     SL4DU
         code
         data
         pretrained
     ```
-2. 下载代码和Ubuntu数据
-    *
+2. Download code and the Ubuntu data
     ``` bash
     ~/SL4DU/code$ git clone https://github.com/RayXu14/SL4DU.git
     ~/SL4DU/data$ wget https://www.dropbox.com/s/2fdn26rj6h9bpvl/ubuntu_data.zip
     ~/SL4DU/data$ unzip ubuntu_data.zip
     ```
-3. 往pretrained文件夹放[bert-base-uncased](https://huggingface.co/bert-base-uncased/tree/main)预训练模型进行测试
+3. Add [bert-base-uncased](https://huggingface.co/bert-base-uncased/tree/main) pretrained model in *pretrained*
     * config.json
     * vocab.txt
     * pytorch_model.bin
-3. 预处理数据
+3. Preprocess data
     ```bash
     ~/SL4DU/code/SL4DU$ python3 preprocess.py --task=RS --dataset=Ubuntu --raw_data_path=../../data/ubuntu_data --pkl_data_path=../../data/ubuntu_data --pretrained_model=bert-base-uncased
     ```
-4. BERT复现
+4. Reproduce BERT result
     ```bash
     ~/SL4DU/code/SL4DU$ python3 -u train.py --save_ckpt --task=RS --dataset=Ubuntu --pkl_data_path=../../data/ubuntu_data --pretrained_model=bert-base-uncased --add_EOT --freeze_layers=0 --train_batch_size=8 --eval_batch_size=100 --log_dir=? # --pkl_valid_file=test.pkl
     ```
-5. 往pretrained文件夹添加post-ubuntu-bert-base-uncased
-    * 放置[whang的Ubuntu的ckpt](https://drive.google.com/file/d/1jt0RhVT9y2d4AITn84kSOk06hjIv1y49/view?usp=sharing)，用deprecated/whangpth2bin.py转化为可用库自动加载的格式；和bert-base-uncased相比，config.json的改动仅需要词汇比post adaption之前的+1，词汇表在末尾新开一行增加[EOS]
-6. BERT-VFT复现
+5. Add *post-ubuntu-bert-base-uncased* in *pretrained*
+    * Download [whang's Ubuntu ckpt](https://drive.google.com/file/d/1jt0RhVT9y2d4AITn84kSOk06hjIv1y49/view?usp=sharing) and use deprecated/whangpth2bin.py to transform it into our form; compared to *bert-base-uncased*, only need to +1 for vocab size in *config.json* and add a new word [EOS] after *vocab.txt*
+6. Reproduce BERT-VFT result
     ```bash
     ~/SL4DU/code/SL4DU$ python3 -u train.py --save_ckpt --task=RS --dataset=Ubuntu --pkl_data_path=../../data/ubuntu_data --pretrained_model=post-ubuntu-bert-base-uncased --freeze_layers=8 --train_batch_size=16 --eval_batch_size=100 --log_dir=? #--pkl_valid_file=test.pkl
     ```
-6. SL4RS复现
+6. Reproduce SL4RS result
     ```bash
     ~/SL4DU/code/SL4DU$ python3 -u train.py --save_ckpt --task=RS --dataset=Ubuntu --pkl_data_path=../../data/ubuntu_data --pretrained_model=post-ubuntu-bert-base-uncased --freeze_layers=8 --train_batch_size=4 --eval_batch_size=100 --log_dir=? --use_NSP --use_UR --use_ID --use_CD --train_view_every=80 #--pkl_valid_file=test.pkl
     ```
-7. 测试
+7. Evaluation
     ```bash
     ~/SL4DU/code/SL4DU$ python3 -u eval.py --task=Ubuntu --data_path=../../data/ubuntu_data --pretrained_model=post-ubuntu-bert-base-uncased --freeze_layers=8 --eval_batch_size=100 --log_dir ? --load_path=?
     ```
