@@ -52,7 +52,7 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
     ~/SL4DU/code/SL4DU$ python3 -u train.py --save_ckpt --task=RS --dataset=Ubuntu --pkl_data_path=../../data/ubuntu_data --pretrained_model=bert-base-uncased --add_EOT --freeze_layers=0 --train_batch_size=8 --eval_batch_size=100 --log_dir=? # --pkl_valid_file=test.pkl
     ```
 5. Add *post-ubuntu-bert-base-uncased* in *pretrained*
-    * Download [whang's Ubuntu ckpt](https://drive.google.com/file/d/1jt0RhVT9y2d4AITn84kSOk06hjIv1y49/view?usp=sharing) and use deprecated/whangpth2bin.py to transform it into our form; compared to *bert-base-uncased*, only need to +1 for vocab size in *config.json* and add a new word [EOS] after *vocab.txt*
+    * Download [whang's Ubuntu ckpt](https://drive.google.com/file/d/1jt0RhVT9y2d4AITn84kSOk06hjIv1y49/view?usp=sharing) and use *deprecated/whangpth2bin.py* to transform it into our form; compared to *bert-base-uncased*, only need to +1 for vocab size in *config.json* and add a new word [EOS] after *vocab.txt*
 6. Reproduce BERT-VFT result
     ```bash
     ~/SL4DU/code/SL4DU$ python3 -u train.py --save_ckpt --task=RS --dataset=Ubuntu --pkl_data_path=../../data/ubuntu_data --pretrained_model=post-ubuntu-bert-base-uncased --freeze_layers=8 --train_batch_size=16 --eval_batch_size=100 --log_dir=? #--pkl_valid_file=test.pkl
@@ -84,6 +84,20 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
                 * 很奇怪的是，增加句例导致修正后效果提升，但修正前变成无效。
                 * 此任务很不稳定，切莫再行修改。维持现状即可。
                 * 还是发现CD任务有很强的不稳定性-->
+
+## Pretrained on yourself
+Using [Whang's repo](https://github.com/taesunwhang/BERT-ResSel) or [our fork](https://github.com/RayXu14/BERT-ResSel).
+
+Remember to transform the saved model to our form using *deprecated/whangpth2bin.py*.
+
+
+### Additional information for pretraining settings
+set the number of epochs as 2 for post-training with 10 duplication data and set the virtual batch size as 384
+
+### Provided pretrained models
+* Ubuntu
+* Douban
+* E-commerce
 
 ## P.S.
 1. warmup和lr_decay未应用，不过目前不注重调参
