@@ -92,8 +92,9 @@ class BasicDialogModel(nn.Module):
                              attention_mask=attention_mask,
                              token_type_ids=segment_ids)
         cls_hidden = outputs.last_hidden_state[:, 0, :] # [batch_size, hidden]
-        logits = self.matching_cls(cls_hidden).squeeze(-1) # [batch_size,]
-        loss = self.matching_loss_fct(logits, label)
+        # TODO same or different to/from main matching task?
+        logits = self.CD_cls(cls_hidden).squeeze(-1) # [batch_size,]
+        loss = self.CD_loss_fct(logits, label)
         return loss
 
     def forward(self, batch):

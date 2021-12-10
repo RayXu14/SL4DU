@@ -126,3 +126,5 @@ class SwDAProcessor(BasicProcessor):
                     f.write(utt + '\n')
                 f.write('\n')
         
+
+#class DSTC2Processor(BasicProcessor):

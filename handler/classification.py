@@ -1,4 +1,4 @@
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import torch
 
 from handler.basic_finetune import BasicFinetuneHandler
@@ -14,6 +14,8 @@ class CLSHandler(BasicFinetuneHandler):
         assert len(preds) == len(labels)
 
         report = []
+        accuracy = accuracy_score(labels, preds)
+        report.append(f'Acc\t= {accuracy}')
         if self.args.label_name == 'emotion' and self.args.dataset == 'Daily':
             micro_f1 = f1_score(labels, preds, average='micro',
                                 labels=[1, 2, 3, 4, 5, 6])
@@ -33,4 +35,4 @@ class CLSHandler(BasicFinetuneHandler):
                          f'\tMean loss = {mean_loss}',
                          '\n'.join(report),
                          '=' * 10]))
-        return macro_f1
+        return accuracy
