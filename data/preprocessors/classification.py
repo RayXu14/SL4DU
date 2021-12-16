@@ -125,6 +125,3 @@ class SwDAProcessor(BasicProcessor):
                 for utt in dialog:
                     f.write(utt + '\n')
                 f.write('\n')
-        
-
-#class DSTC2Processor(BasicProcessor):

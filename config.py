@@ -4,7 +4,7 @@ import os
 
 def _add_task_args(parser):
     parser.add_argument('--task', type=str, required=True,
-        choices=['RS', 'CLS'],
+        choices=['RS', 'CLS', 'DST'],
         help='Decide downstream task: Response Selection / Classification')
     parser.add_argument('--label_name', type=str,
                         choices=['act', 'emotion'],
@@ -14,7 +14,8 @@ def _add_task_args(parser):
     parser.add_argument('--dataset', type=str, required=True,
         choices=['Ubuntu', 'Douban', 'E-commerce',
                  'Daily', 'SwDA', 'PersonaChat',
-                 'GRADEdata', 'USR-PersonaChat', 'FED'],
+                 'GRADEdata', 'USR-PersonaChat', 'FED',
+                 'DSTC2'],
         help='Decide the method of raw file reading, ')
 
 

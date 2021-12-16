@@ -3,6 +3,7 @@ from data.preprocessors.classification import DailyProcessor, \
 from data.preprocessors.response_selection import UbuntuProcessor, \
                                                   DailyRSProcessor, \
                                                   PersonaChatRSProcessor
+from data.preprocessors.dialog_state_tracking import DSTC2Processor
         
         
 def get_processor(args):
@@ -18,5 +19,8 @@ def get_processor(args):
             return DailyProcessor(args)
         if args.dataset in ['SwDA']:
             return SwDAProcessor(args)
+    elif args.task == 'DST':
+        if args.dataset in ['DSTC2']:
+            return DSTC2Processor(args)
     raise NotImplementedError('Not supported task-dataset combination.')
     
