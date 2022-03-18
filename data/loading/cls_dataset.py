@@ -1,7 +1,6 @@
 from tqdm import tqdm
 
 from data.loading.basic_dialog_dataset import BasicDialogDataset
-from util import fetch_pyarrow
                
 
 class ClassificationDataset(BasicDialogDataset):
@@ -19,6 +18,3 @@ class ClassificationDataset(BasicDialogDataset):
                                          'label': label})
         assert len(self.proper_ids) > 0, 'No sample has context.'
         return full_samples
-    
-    def _get_positive(self, remapped_index):
-        return fetch_pyarrow(self.samples, remapped_index)

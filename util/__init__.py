@@ -3,4 +3,4 @@ from util.io import redirect_std, auto_redirect_std, \
                     fetch_pyarrow
 from util.torch_helper import batch2cuda, tensor2list, tensor2np, \
                               visualize_model, smart_model_loading
-from util.metrics import auto_report_RS
+from util.metrics import bleu_metric, normalize_answer, distinct_metric 

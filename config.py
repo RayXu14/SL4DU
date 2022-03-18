@@ -4,7 +4,7 @@ import os
 
 def _add_task_args(parser):
     parser.add_argument('--task', type=str, required=True,
-        choices=['RS', 'CLS', 'DST'],
+        choices=['RS', 'CLS', 'DST', 'RG'],
         help='Decide downstream task: Response Selection / Classification')
     parser.add_argument('--label_name', type=str,
                         choices=['act', 'emotion'],

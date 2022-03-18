@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+import torch
+
 
 def visualize_model(model):
     model_spec = []
@@ -25,11 +27,17 @@ def batch2cuda(batch):
     
     
 def tensor2np(tensor):
-    return tensor.detach().cpu().numpy()
+    if isinstance(tensor, torch.Tensor):
+        return tensor.detach().cpu().numpy()
+    else:
+        return tensor
 
 
 def tensor2list(tensor):
-    return tensor2np(tensor).tolist()
+    if isinstance(tensor, torch.Tensor):
+        return tensor2np(tensor).tolist()
+    else:
+        return tensor
     
 
 def smart_model_loading(model, checkpoint):

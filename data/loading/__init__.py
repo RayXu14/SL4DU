@@ -12,6 +12,9 @@ def get_dataset(args, filename, tokenizer, is_train):
     elif args.task == 'RS':
         from data.loading.crmatching_dataset import CRMatchingDataset
         return CRMatchingDataset(args, filename, tokenizer, is_train)
+    elif args.task == 'RG':
+        from data.loading.response_generation import ResponseGenerationDataset
+        return ResponseGenerationDataset(args, filename, tokenizer, is_train)
     else:
         raise NotImplementedError('Not supported task.')
 

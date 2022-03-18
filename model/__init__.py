@@ -5,5 +5,8 @@ def get_model(args, new_tokenizer_len):
     elif args.task == 'RS':
         from model.crmatching import CRMatchingModel
         return CRMatchingModel(args, new_tokenizer_len)
+    elif args.task == 'RG':
+        from model.response_generation import ResponseGenerationModel
+        return ResponseGenerationModel(args, new_tokenizer_len)
     raise NotImplementedError('Not supported task.')
     

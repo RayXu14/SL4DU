@@ -1,4 +1,12 @@
-import numpy
+from collections import Counter
+import re
+
+import numpy        
+import nltk
+from nltk import ngrams
+from nltk.translate import bleu_score as nltkbleu
+from stop_words import get_stop_words
+
 
 
 def recall_2at1(score_list, k=1):
@@ -153,3 +161,60 @@ def auto_report_RS(all_labels, all_preds, dataset):
     else:
         main_metric = numpy.average(list_r_1_10)
     return report, main_metric
+        
+
+def bleu_corpus(hypothesis, references):
+    from nltk.translate.bleu_score import corpus_bleu
+    hypothesis = hypothesis.copy()
+    references = references.copy()
+    hypothesis = [hyp.split() for hyp in hypothesis]
+    references = [[ref.split()] for ref in references]
+    # hypothesis = [normalize_answer(hyp).split(" ") for hyp in hypothesis]
+    # references = [[normalize_answer(ref).split(" ")] for ref in references]
+    b1 = corpus_bleu(references, hypothesis, weights=(1.0/1.0,), smoothing_function=nltkbleu.SmoothingFunction(epsilon=1e-12).method1)
+    b2 = corpus_bleu(references, hypothesis, weights=(1.0/2.0, 1.0/2.0), smoothing_function=nltkbleu.SmoothingFunction(epsilon=1e-12).method1)
+    b3 = corpus_bleu(references, hypothesis, weights=(1.0/3.0, 1.0/3.0, 1.0/3.0), smoothing_function=nltkbleu.SmoothingFunction(epsilon=1e-12).method1)
+    b4 = corpus_bleu(references, hypothesis, weights=(1.0/4.0, 1.0/4.0, 1.0/4.0, 1.0/4.0), smoothing_function=nltkbleu.SmoothingFunction(epsilon=1e-12).method1)
+    return (b1, b2, b3, b4)
+
+    
+def bleu_metric(hypothesis, references):
+    return bleu_corpus(hypothesis, references)
+
+
+def distinct_metric(hypothesis):
+    '''
+    compute distinct metric
+    :param hypothesis: list of str
+    :return:
+    '''
+    unigram_counter, bigram_counter = Counter(), Counter()
+    for hypo in hypothesis:
+        tokens = hypo.split()
+        unigram_counter.update(tokens)
+        bigram_counter.update(ngrams(tokens, 2))
+
+    distinct_1 = len(unigram_counter) / (sum(unigram_counter.values()) + 1e-20)
+    distinct_2 = len(bigram_counter) / (sum(bigram_counter.values()) + 1e-20)
+    return distinct_1, distinct_2
+
+re_art = re.compile(r'\b(a|an|the)\b')
+re_punc = re.compile(r'[!"#$%&()*+,-./:;<=>?@\[\]\\^`{|}~_\']')
+
+
+def normalize_answer(s):
+    """Lower text and remove punctuation, articles and extra whitespace."""
+
+    def remove_articles(text):
+        return re_art.sub(' ', text)
+
+    def white_space_fix(text):
+        return ' '.join(text.split())
+
+    def remove_punc(text):
+        return re_punc.sub(' ', text)  # convert punctuation to spaces
+
+    def lower(text):
+        return text.lower()
+
+    return white_space_fix(remove_articles(remove_punc(lower(s))))

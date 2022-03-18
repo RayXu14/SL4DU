@@ -3,6 +3,8 @@ import torch
 def collate_fn(data_dict_batch):
     tensor_batch = {}
     collate_task(data_dict_batch, tensor_batch, 'main')
+    if 'main_gen_token_ids' in data_dict_batch[0]:
+        collate_task(data_dict_batch, tensor_batch, 'main_gen')
     collate_task(data_dict_batch, tensor_batch, 'nsp')
     collate_task(data_dict_batch, tensor_batch, 'ur')
     collate_task(data_dict_batch, tensor_batch, 'id')
@@ -15,9 +17,12 @@ def collate_task(data_dict_batch, tensor_batch, task):
     sids_key = f'{task}_segment_ids'
     amask_key = f'{task}_attention_mask'
     label_key = f'{task}_label'
-    positions_key = f'{task}_positions' # UR
-    labels_key = f'{task}_labels' # UR
+    positions_key = f'{task}_positions' # UR, RG
+    labels_key = f'{task}_labels' # UR, RG
     locations_key = f'{task}_locations' # ID
+    response_key = f'{task}_response' # RG
+    init_gen_key = f'{task}_init_generation' # RG
+    UniLMmask_key = f'{task}_UniLMmask' # RG
 
     ''' Ignore empty batch'''
     non_empty_batch = []
@@ -34,24 +39,38 @@ def collate_task(data_dict_batch, tensor_batch, task):
     batch = dict()
     batch[tids_key]  = []
     batch[sids_key]  = []
-    batch[amask_key] = []
-    batch[label_key] = []
 
     for data_dict in data_dict_batch:
         cur_len = len(data_dict[tids_key])
         data_dict[tids_key].extend([0] * (max_len - cur_len))
         data_dict[sids_key].extend([0] * (max_len - cur_len))
-        data_dict[amask_key].extend([0] * (max_len - cur_len))
         batch[tids_key].append(data_dict[tids_key])
         batch[sids_key].append(data_dict[sids_key])
-        batch[amask_key].append(data_dict[amask_key])
 
     ''' Tensorize '''
     tensor_batch[tids_key]  = torch.LongTensor(batch[tids_key])
     tensor_batch[sids_key]  = torch.LongTensor(batch[sids_key])
-    tensor_batch[amask_key] = torch.LongTensor(batch[amask_key])
     
     ''' Optional features'''
+    if UniLMmask_key in data_dict_batch[0]:
+        batch[UniLMmask_key] = []
+        for data_dict in data_dict_batch:
+            att_matrix = data_dict[UniLMmask_key]
+            this_len = len(att_matrix)
+            for i in range(this_len):
+                att_matrix[i].extend([0] * (max_len - this_len))
+            att_matrix.extend([[0] * max_len for _ in range(max_len - this_len)])
+            batch[UniLMmask_key].append(att_matrix)
+        tensor_batch[UniLMmask_key] = torch.FloatTensor(batch[UniLMmask_key])
+        
+    if amask_key in data_dict_batch[0]:
+        batch[amask_key] = []
+        for data_dict in data_dict_batch:
+            cur_len = len(data_dict[amask_key])
+            data_dict[amask_key].extend([0] * (max_len - cur_len))
+            batch[amask_key].append(data_dict[amask_key])
+        tensor_batch[amask_key] = torch.FloatTensor(batch[amask_key])
+    
     if label_key in data_dict_batch[0]:
         batch[label_key]  = []
         for data_dict in data_dict_batch:
@@ -75,4 +94,14 @@ def collate_task(data_dict_batch, tensor_batch, task):
         tensor_batch[locations_key] = []
         for data_dict in data_dict_batch:
             tensor_batch[locations_key].append(data_dict[locations_key])
+
+    if response_key in data_dict_batch[0]:
+        tensor_batch[response_key] = []
+        for data_dict in data_dict_batch:
+            tensor_batch[response_key].append(data_dict[response_key])
+
+    if init_gen_key in data_dict_batch[0]:
+        tensor_batch[init_gen_key] = []
+        for data_dict in data_dict_batch:
+            tensor_batch[init_gen_key].append(data_dict[init_gen_key])
             

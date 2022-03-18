@@ -5,5 +5,8 @@ def get_handler(args, mode):
     elif args.task == 'RS':
         from handler.response_selection import RSHandler
         return RSHandler(args, mode)
+    elif args.task == 'RG':
+        from handler.response_generation import RGHandler
+        return RGHandler(args, mode)
     raise NotImplementedError('Not supported task.')
     

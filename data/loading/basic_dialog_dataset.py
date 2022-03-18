@@ -171,6 +171,9 @@ class BasicDialogDataset(Dataset):
             return True
         else:
             return True
+    
+    def _get_positive(self, remapped_index):
+        return fetch_pyarrow(self.samples, remapped_index)
     '''
     Auxiliary Tasks
     '''

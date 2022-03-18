@@ -97,7 +97,7 @@ class BasicFinetuneHandler:
         '''
         cuda_batch = batch2cuda(batch)
         logits, losses = self.model(cuda_batch)
-        if self.parallel:
+        if self.parallel and losses is not None:
             for task in losses:
                 losses[task] = losses[task].mean()
         return logits, losses
@@ -108,6 +108,9 @@ class BasicFinetuneHandler:
     @abstractmethod
     def report(self):
         pass
+        
+    def get_label_from_batch(self, batch):
+        return batch['main_label']
 
     def eval(self):
         time_start = time.time()
@@ -128,9 +131,10 @@ class BasicFinetuneHandler:
             for batch_idx, batch in enumerate(self.eval_loader):
                 logits, losses = self.run_model(batch)
 
-                all_losses.append(losses['main'].item())
+                if losses is not None:
+                    all_losses.append(losses['main'].item())
                 all_preds.extend(tensor2list(self.logits2preds(logits)))
-                all_labels.extend(tensor2list(batch['main_label']))
+                all_labels.extend(tensor2list(self.get_label_from_batch(batch)))
 
                 if (batch_idx + 1) % self.args.eval_view_every == 0:
                     print(f'Evaluated {batch_idx + 1}-th batches.')
@@ -198,7 +202,7 @@ class BasicFinetuneHandler:
                                     / self.args.virtual_batch_size
                 train_loss += losses[task]
                 virtual_batch_losses[task] += losses[task].item()
-            accumulate_batch += batch['main_label'].shape[0]
+            accumulate_batch += batch['main_token_ids'].shape[0]
 
             ''' Update '''
             train_loss.backward()
