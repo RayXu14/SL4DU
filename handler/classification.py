@@ -1,3 +1,4 @@
+import os
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import torch
 
@@ -12,6 +13,14 @@ class CLSHandler(BasicFinetuneHandler):
     
     def report(self, preds, labels, losses):
         assert len(preds) == len(labels)
+        
+        
+        record_path = os.path.join(self.args.log_dir, f'epoch-{self.epoch}')
+        with open(record_path, 'w') as f:
+            for l, p in zip(labels, preds):
+                l = int(l)
+                f.write(f'{l}\t{p}\n')
+        print(f'Record of epoch {self.epoch} is recorded.')
 
         report = []
         accuracy = accuracy_score(labels, preds)
@@ -35,4 +44,7 @@ class CLSHandler(BasicFinetuneHandler):
                          f'\tMean loss = {mean_loss}',
                          '\n'.join(report),
                          '=' * 10]))
-        return accuracy
+        if self.args.label_name == 'emotion' and self.args.dataset == 'Daily':
+            return micro_f1
+        else:
+            return accuracy
