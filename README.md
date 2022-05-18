@@ -60,7 +60,7 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
     ```
 
 ## Pretrained on yourself
-Using [Whang's repo](https://github.com/taesunwhang/BERT-ResSel) or [our fork](https://github.com/RayXu14/BERT-ResSel).
+Using [Whang's repo](https://github.com/taesunwhang/BERT-ResSel)<!-- or [our fork](https://github.com/RayXu14/BERT-ResSel).-->
 
 Remember to transform the saved model to our form using *deprecated/whangpth2bin.py*.
 
