@@ -8,7 +8,6 @@ class ResponseGenerationDataset(BasicDialogDataset):
     def _process_samples(self, samples):
         dialogs = []
         for sample in tqdm(samples, desc='Process RG samples...'):
-            # Yufan的做法是超过11轮长度再行切割，并且每句保留前25词
             if self.is_train:
                 dialog = sample['dialog']
                 for i in range(1, len(dialog)):
