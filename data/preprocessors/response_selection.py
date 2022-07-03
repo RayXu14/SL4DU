@@ -76,7 +76,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
             right_edge = min(i + self.args.gen_batch_size, len(contexts))
             context_batch = contexts[i:right_edge]
             context_id_batch = contexts[i:right_edge]
-            context_len_batch = max(context_lens[i:right_edge])
+            context_len_batch = context_lens[i:right_edge]
             max_context_len = max(context_len_batch)
             
             set_seed(42)
