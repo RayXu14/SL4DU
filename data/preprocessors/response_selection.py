@@ -65,8 +65,8 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                     context_len = len(self.gen_tokenizer(context)['input_ids'])
                     context_lens.append(context_len)
                 n_example += 1
-                if n_example == 10: # TODO
-                    break # TODO
+                #if n_example == 10: # TODO
+                #    break # TODO
         
         assert len(contexts) == len(context_ids) == len(context_lens), f'{len(contexts)} {len(context_ids)} {len(context_lens)}'
             
@@ -86,11 +86,11 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                                        num_return_sequences=1) # TODO
             for hint, context_id, context_len in zip(hint_batch, context_id_batch, context_len_batch):
                 hint = list(hint[0].values())[0]
-                print(hint + '\n')
+                #print(hint + '\n')
                 hint = hint[context_len:]
-                print(hint + '\n')
+                #print(hint + '\n')
                 hints.extend([hint] * len(context_id))
-        breakpoint()
+        #breakpoint()
                 
         return hints
 
