@@ -2,7 +2,9 @@ import json
 import os
 import random
 
+import torch
 from tqdm import tqdm
+from transformers import pipeline, set_seed
 
 from data.preprocessors.basic_processor import BasicProcessor
 
@@ -22,6 +24,40 @@ class UbuntuProcessor(BasicProcessor):
                             for turn in data[1:]]
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
+                                    'response': dialog[-1]})
+        return dialog_data
+
+class UbuntuGenRankProcessor(BasicProcessor):
+
+    def __init__(self, args):
+        super(UbuntuGenRankProcessor, self).__init__(args)
+        self.generator = pipeline('text-generation', model=self.args.gen_model)
+        set_seed(42)
+        
+    def read_raw(self, in_path):
+        dialog_data = []
+        with open(in_path, encoding='utf8') as f:
+            for line in tqdm(f, desc=f'Reading [{in_path}] in UbuntuRS style'):
+                line = line.strip()
+                if len(line) == 0:
+                    continue
+                data = line.split("\t")
+                
+                # tokenize
+                label = int(data[0].strip())
+                dialog = [self.tokenizer.tokenize(turn.strip())
+                            for turn in data[1:]]
+                # gen
+                context = ' '.join(data[1:-1])
+                with torch.no_grad():
+                    hints = generator(context,
+                                      max_length = self.args.gen_max_length,
+                                      num_return_sequences=1) # TODO
+                hint = hints[0].values[0]
+                    
+                dialog_data.append({'label'   : label,
+                                    'context' : dialog[:-1],
+                                    'hint': hint,
                                     'response': dialog[-1]})
         return dialog_data
 

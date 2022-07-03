@@ -30,7 +30,14 @@ def _add_raw_data_args(parser):
         help='The path of the raw file or directory of validation set.')
     parser.add_argument('--raw_test_file', type=str,
         default='test.txt',
-        help='The path of the raw file or directory of test set.')
+        help='The path of the raw file or directory of test set.')\
+        
+        
+def _add_genRank_args(parser):
+    parser.add_argument('--gen_model', type=str,
+        default='gpt2')
+    parser.add_argument('--gen_max_length', type=int,
+        default=100)
 
 
 def _add_pkl_data_args(parser):
@@ -138,6 +145,7 @@ def init_arguments(mode):
     if mode == 'preprocess':
         print('Initializing preprocess arguments...')
         _add_raw_data_args(parser)
+        _add_genRank_args(parser)
     elif mode == 'train':
         print('Initializing train arguments...')
         _add_data_loading_args(parser)
