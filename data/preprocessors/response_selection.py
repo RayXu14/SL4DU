@@ -38,38 +38,61 @@ class UbuntuGen2RankProcessor(BasicProcessor):
         self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
         
     def read_raw(self, in_path):
-        dialog_data = []
-        pre_g_context = ''
         with open(in_path, encoding='utf8') as f:
-            for line in tqdm(f, desc=f'Reading [{in_path}] in UbuntuRS style'):
+            n_example = 0
+            
+            contexts = []
+            context_ids = []
+            context_lens = []
+            
+            pre_context = ''
+            for line in tqdm(f, desc=f'Reading [{in_path}] in UbuntuG2R style'):
                 line = line.strip()
                 if len(line) == 0:
                     continue
-                data = line.split("\t")
+                context = ' '.join(line.split("\t")[1:-1])
+                context = ' '.join(context.split()[-self.args.gen_max_context_length:])
                 
-                # tokenize
-                label = int(data[0].strip())
-                dialog = [self.tokenizer.tokenize(turn.strip())
-                            for turn in data[1:]]
-                # gen
-                g_context = ' '.join(data[1:-1])
-                if pre_g_context != g_context:
-                    pre_g_context = g_context
-                    gen_context = ' '.join(g_context.split()[-self.args.gen_max_context_length:])
-                    gen_context_len = len(self.gen_tokenizer(gen_context)['input_ids'])
-                    set_seed(42)
-                    with torch.no_grad():
-                        hints = self.generator(gen_context,
-                                      max_length = gen_context_len + self.args.gen_max_length,
-                                      num_return_sequences=1) # TODO
-                    hint = list(hints[0].values())[0][len(gen_context):]
-                    #print('\n\n' + gen_context + '\n\n' + hint + '\n\n')
-                #print(111)    
-                dialog_data.append({'label'   : label,
-                                    'context' : dialog[:-1],
-                                    'hint': hint,
-                                    'response': dialog[-1]})
-        return dialog_data
+                print(context + '\n')
+                
+                if pre_context == context:
+                    assert len(context_ids) > 0
+                    context_ids[-1] = context_ids[-1] + [n_example]
+                else:
+                    pre_context = context
+                    context_ids.append([n_example])
+                    context_len = len(self.gen_tokenizer(context)['input_ids'])
+                    context_lens.append(context_len)
+                n_example += 1
+                if n_example == 10: # TODO
+                    break # TODO
+        
+        assert len(contexts) == len(context_ids) == len(context_lens)
+        breakpoint()
+            
+        hints = []
+        for i in tqdm(range(0, len(contexts), self.args.gen_batch_size),
+                      desc=f'G2R preprocessing...'):
+            right_edge = min(i + self.args.gen_batch_size, len(contexts))
+            context_batch = contexts[i:right_edge]
+            context_id_batch = contexts[i:right_edge]
+            context_len_batch = max(context_lens[i:right_edge])
+            max_context_len = max(context_len_batch)
+            
+            set_seed(42)
+            with torch.no_grad():
+                hint_batch = self.generator(context_batch,
+                                       max_length = max_context_len + self.args.gen_max_length,
+                                       num_return_sequences=1) # TODO
+            for hint, context_id, context_len in zip(hint_batch, context_id_batch, context_len_batch):
+                hint = list(hint.values())[0]
+                print(hint + '\n')
+                hint = hint[context_len:]
+                print(hint + '\n')
+                hints.extend([hint] * len(context_id))
+        breakpoint()
+                
+        return hints
 
 
 class DailyRSProcessor(BasicProcessor):
