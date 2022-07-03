@@ -31,7 +31,7 @@ class UbuntuProcessor(BasicProcessor):
 class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
-        super(UbuntuGenRankProcessor, self).__init__(args)
+        super(UbuntuGen2RankProcessor, self).__init__(args)
         self.generator = pipeline('text-generation', model=self.args.gen_model)
         set_seed(42)
         
