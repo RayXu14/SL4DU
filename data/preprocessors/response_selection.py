@@ -4,7 +4,7 @@ import random
 
 import torch
 from tqdm import tqdm
-from transformers import pipeline, set_seed
+from transformers import pipeline, set_seed, AutoTokenizer
 
 from data.preprocessors.basic_processor import BasicProcessor
 
@@ -36,6 +36,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                                   model=self.args.gen_model,
                                   device=0)
         set_seed(42)
+        self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
         
     def read_raw(self, in_path):
         dialog_data = []
@@ -51,10 +52,11 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 dialog = [self.tokenizer.tokenize(turn.strip())
                             for turn in data[1:]]
                 # gen
-                context = ' '.join(data[1:-1])
+                gen_context = ' '.join(data[1:-1])
+                gen_context_len = len(self.gen_tokenizer(gen_context)['input_ids'])
                 with torch.no_grad():
-                    hints = self.generator(context,
-                                      max_length = self.args.gen_max_length,
+                    hints = self.generator(gen_context,
+                                      max_length = gen_context_len + self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
                 hint = list(hints[0].values())[0]
                     
