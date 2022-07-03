@@ -4,7 +4,7 @@ import random
 
 import torch
 from tqdm import tqdm
-from transformers import TextGenerationPipeline, set_seed, AutoTokenizer
+from transformers import TextGenerationPipeline, set_seed, AutoTokenizer, AutoModel
 
 from data.preprocessors.basic_processor import BasicProcessor
 
