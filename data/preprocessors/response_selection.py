@@ -32,7 +32,9 @@ class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
         super(UbuntuGen2RankProcessor, self).__init__(args)
-        self.generator = pipeline('text-generation', model=self.args.gen_model)
+        self.generator = pipeline('text-generation',
+                                  model=self.args.gen_model,
+                                  device=0)
         set_seed(42)
         
     def read_raw(self, in_path):
@@ -54,7 +56,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                     hints = self.generator(context,
                                       max_length = self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
-                hint = hints[0].values[0]
+                hint = hints[0].values()[0]
                     
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
