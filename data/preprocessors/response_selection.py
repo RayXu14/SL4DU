@@ -27,7 +27,8 @@ class UbuntuProcessor(BasicProcessor):
                                     'response': dialog[-1]})
         return dialog_data
 
-class UbuntuGenRankProcessor(BasicProcessor):
+        
+class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
         super(UbuntuGenRankProcessor, self).__init__(args)
