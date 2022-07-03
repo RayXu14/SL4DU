@@ -35,7 +35,6 @@ class UbuntuGen2RankProcessor(BasicProcessor):
         self.generator = pipeline('text-generation',
                                   model=self.args.gen_model,
                                   device=0)
-        set_seed(42)
         self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
         
     def read_raw(self, in_path):
@@ -52,13 +51,15 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 dialog = [self.tokenizer.tokenize(turn.strip())
                             for turn in data[1:]]
                 # gen
-                gen_context = ' '.join(data[1:-1])
+                gen_context = ' '.join(' '.join(data[1:-1]).split()[-self.args.gen_max_context_length:])
                 gen_context_len = len(self.gen_tokenizer(gen_context)['input_ids'])
+                set_seed(42)
                 with torch.no_grad():
                     hints = self.generator(gen_context,
                                       max_length = gen_context_len + self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
-                hint = list(hints[0].values())[0]
+                hint = list(hints[0].values())[0][len(gen_context):]
+                # print(hint)
                     
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
