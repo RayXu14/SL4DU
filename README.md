@@ -18,6 +18,7 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
 * tqdm
 * transformers==4.5.1
 * sklearn
+* stop_words
 
 ## Reproduce step: an example
 1. Initialize directories
