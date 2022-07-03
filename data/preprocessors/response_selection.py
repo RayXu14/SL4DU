@@ -60,6 +60,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                     context_ids[-1] = context_ids[-1] + [n_example]
                 else:
                     pre_context = context
+                    contexts.append(context)
                     context_ids.append([n_example])
                     context_len = len(self.gen_tokenizer(context)['input_ids'])
                     context_lens.append(context_len)
