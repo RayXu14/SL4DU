@@ -51,7 +51,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 # gen
                 context = ' '.join(data[1:-1])
                 with torch.no_grad():
-                    hints = generator(context,
+                    hints = self.generator(context,
                                       max_length = self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
                 hint = hints[0].values[0]
