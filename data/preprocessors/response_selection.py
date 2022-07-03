@@ -53,7 +53,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 context = ' '.join(line.split("\t")[1:-1])
                 context = ' '.join(context.split()[-self.args.gen_max_context_length:])
                 
-                print(context + '\n')
+                #print(context + '\n')
                 
                 if pre_context == context:
                     assert len(context_ids) > 0
