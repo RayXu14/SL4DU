@@ -1,7 +1,7 @@
 from data.preprocessors.classification import DailyProcessor, \
                                               SwDAProcessor
 from data.preprocessors.response_selection import UbuntuProcessor, \
-                                                  UbuntuGenRankProcessor, \
+                                                  UbuntuGen2RankProcessor, \
                                                   DailyRSProcessor, \
                                                   PersonaChatRSProcessor
 from data.preprocessors.dialog_state_tracking import DSTC2Processor
@@ -15,9 +15,9 @@ def get_processor(args):
             return DailyRSProcessor(args)
         elif args.dataset in ['PersonaChat']:
             return PersonaChatRSProcessor(args)
-    if args.task == 'GR':
+    if args.task == 'G2R':
         if args.dataset in ['Ubuntu', 'Douban', 'E-commerce']:
-            return UbuntuGenRankProcessor(args)
+            return UbuntuGen2RankProcessor(args)
     elif args.task == 'CLS':
         if args.dataset in ['Daily']:
             return DailyProcessor(args)
