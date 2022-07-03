@@ -85,7 +85,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                                        max_length = max_context_len + self.args.gen_max_length,
                                        num_return_sequences=1) # TODO
             for hint, context_id, context_len in zip(hint_batch, context_id_batch, context_len_batch):
-                hint = list(hint.values())[0]
+                hint = list(hint[0].values())[0]
                 print(hint + '\n')
                 hint = hint[context_len:]
                 print(hint + '\n')
