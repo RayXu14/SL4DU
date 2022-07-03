@@ -10,6 +10,7 @@ frontlibrary/transformers-pytorch-gpu:4.6.1-pyarrow
 
 ### Option 2: build from scatch
 * Python==3.9 ([There may be some problem for numpy with 3.10](https://exerror.com/building-wheel-for-numpy-pyproject-toml/))
+* nltk
 * numpy (can be automatically installed when installing scipy)
 * scipy (if you have problem, see this [solution](https://stackoverflow.com/questions/11114225/installing-scipy-and-numpy-using-pip))
 * torch==1.8
