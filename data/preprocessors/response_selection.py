@@ -67,7 +67,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 if n_example == 10: # TODO
                     break # TODO
         
-        assert len(contexts) == len(context_ids) == len(context_lens)
+        assert len(contexts) == len(context_ids) == len(context_lens), f'{len(contexts)} {len(context_ids)} {len(context_lens)}'
         breakpoint()
             
         hints = []
