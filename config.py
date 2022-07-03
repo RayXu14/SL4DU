@@ -40,8 +40,6 @@ def _add_genRank_args(parser):
         default=200)
     parser.add_argument('--gen_max_length', type=int,
         default=100)
-    parser.add_argument('--gen_batch_size', type=int,
-        default=32)
 
 
 def _add_pkl_data_args(parser):
