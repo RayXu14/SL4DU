@@ -37,7 +37,7 @@ def _add_genRank_args(parser):
     parser.add_argument('--gen_model', type=str,
         default='gpt2') # gpt2, gpt2-medium, gpt2-large, gpt2-xl
     parser.add_argument('--gen_max_context_length', type=int,
-        default=400)
+        default=200)
     parser.add_argument('--gen_max_length', type=int,
         default=100)
 

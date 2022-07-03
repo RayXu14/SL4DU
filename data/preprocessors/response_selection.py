@@ -39,6 +39,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
         
     def read_raw(self, in_path):
         dialog_data = []
+        pre_g_context = ''
         with open(in_path, encoding='utf8') as f:
             for line in tqdm(f, desc=f'Reading [{in_path}] in UbuntuRS style'):
                 line = line.strip()
@@ -51,15 +52,18 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                 dialog = [self.tokenizer.tokenize(turn.strip())
                             for turn in data[1:]]
                 # gen
-                gen_context = ' '.join(' '.join(data[1:-1]).split()[-self.args.gen_max_context_length:])
-                gen_context_len = len(self.gen_tokenizer(gen_context)['input_ids'])
-                set_seed(42)
-                with torch.no_grad():
-                    hints = self.generator(gen_context,
+                g_context = ' '.join(data[1:-1])
+                if pre_g_context != g_context:
+                    pre_g_context = g_context
+                    gen_context = ' '.join(g_context.split()[-self.args.gen_max_context_length:])
+                    gen_context_len = len(self.gen_tokenizer(gen_context)['input_ids'])
+                    set_seed(42)
+                    with torch.no_grad():
+                        hints = self.generator(gen_context,
                                       max_length = gen_context_len + self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
-                hint = list(hints[0].values())[0][len(gen_context):]
-                # print('\n\n' + gen_context + '\n\n' + hint + '\n\n')
+                    hint = list(hints[0].values())[0][len(gen_context):]
+                    # print('\n\n' + gen_context + '\n\n' + hint + '\n\n')
                     
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
