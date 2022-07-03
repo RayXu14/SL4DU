@@ -4,7 +4,7 @@ import random
 
 import torch
 from tqdm import tqdm
-from transformers import pipeline, set_seed, AutoTokenizer
+from transformers import TextGenerationPipeline, set_seed, AutoTokenizer
 
 from data.preprocessors.basic_processor import BasicProcessor
 
@@ -32,10 +32,12 @@ class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
         super(UbuntuGen2RankProcessor, self).__init__(args)
-        self.generator = pipeline('text-generation',
-                                  model=self.args.gen_model,
-                                  device=0)
         self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
+        self.gen_model = AutoModel.from_pretrained(self.args.gen_model,
+                                                   pad_token_id=self.gen_tokenizer.eos_token_id)
+        self.generator = TextGenerationPipeline(tokenizer=self.gen_tokenizer,
+                                                model=self.gen_model,
+                                                device=0)
         
     def read_raw(self, in_path):
         dialog_data = []
