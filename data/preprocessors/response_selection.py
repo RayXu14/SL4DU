@@ -4,7 +4,7 @@ import random
 
 import torch
 from tqdm import tqdm
-from transformers import TextGenerationPipeline, set_seed, GPT2Tokenizer, GPT2Model
+from transformers import pipeline, set_seed, AutoTokenizer
 
 from data.preprocessors.basic_processor import BasicProcessor
 
@@ -32,12 +32,10 @@ class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
         super(UbuntuGen2RankProcessor, self).__init__(args)
-        self.gen_tokenizer = GPT2Tokenizer.from_pretrained(self.args.gen_model)
-        self.gen_model = GPT2Model.from_pretrained(self.args.gen_model,
-                                                   pad_token_id=self.gen_tokenizer.eos_token_id)
-        self.generator = TextGenerationPipeline(tokenizer=self.gen_tokenizer,
-                                                model=self.gen_model,
-                                                device=0)
+        self.generator = pipeline('text-generation',
+                                  model=self.args.gen_model,
+                                  device=0)
+        self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
         
     def read_raw(self, in_path):
         dialog_data = []
@@ -61,8 +59,7 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                                       max_length = gen_context_len + self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
                 hint = list(hints[0].values())[0][len(gen_context):]
-                # print('\n' + gen_context + '\n')
-                # print(hint + '\n')
+                # print('\n\n' + gen_context + '\n\n' + hint + '\n\n')
                     
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
