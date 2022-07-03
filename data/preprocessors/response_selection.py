@@ -69,7 +69,6 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                     break # TODO
         
         assert len(contexts) == len(context_ids) == len(context_lens), f'{len(contexts)} {len(context_ids)} {len(context_lens)}'
-        breakpoint()
             
         hints = []
         for i in tqdm(range(0, len(contexts), self.args.gen_batch_size),
