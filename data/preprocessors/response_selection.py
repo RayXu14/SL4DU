@@ -61,7 +61,8 @@ class UbuntuGen2RankProcessor(BasicProcessor):
                                       max_length = gen_context_len + self.args.gen_max_length,
                                       num_return_sequences=1) # TODO
                 hint = list(hints[0].values())[0][len(gen_context):]
-                # print(hint)
+                # print('\n' + gen_context + '\n')
+                # print(hint + '\n')
                     
                 dialog_data.append({'label'   : label,
                                     'context' : dialog[:-1],
