@@ -4,7 +4,7 @@ import random
 
 import torch
 from tqdm import tqdm
-from transformers import TextGenerationPipeline, set_seed, AutoTokenizer, AutoModel
+from transformers import TextGenerationPipeline, set_seed, GPT2Tokenizer, GPT2Model
 
 from data.preprocessors.basic_processor import BasicProcessor
 
@@ -32,8 +32,8 @@ class UbuntuGen2RankProcessor(BasicProcessor):
 
     def __init__(self, args):
         super(UbuntuGen2RankProcessor, self).__init__(args)
-        self.gen_tokenizer = AutoTokenizer.from_pretrained(self.args.gen_model)
-        self.gen_model = AutoModel.from_pretrained(self.args.gen_model,
+        self.gen_tokenizer = GPT2Tokenizer.from_pretrained(self.args.gen_model)
+        self.gen_model = GPT2Model.from_pretrained(self.args.gen_model,
                                                    pad_token_id=self.gen_tokenizer.eos_token_id)
         self.generator = TextGenerationPipeline(tokenizer=self.gen_tokenizer,
                                                 model=self.gen_model,
