@@ -14,7 +14,6 @@ class G2RDataset(BasicDialogDataset):
         sample = self._get_sample(remapped_index)
         context = self._concat_utterances(sample['context'])
         context.extend(self.tokenizer.tokenize(sample['hint'][:self.args.max_hint_len]))
-        breakpoint()
         data_dict['main_label'] = sample['label']
         data_dict['main_token_ids'], \
         data_dict['main_segment_ids'], \
