@@ -29,11 +29,12 @@ class BasicDialogModel(nn.Module):
 
         ''' Add heads and loss_fct '''
         self._init_main_task()
+        '''
         if hasattr(args, 'use_NSP') and args.use_NSP:
             self.matching_cls = nn.Sequential(nn.Dropout(p=self.args.dropout_rate),
                                     nn.Linear(self.model_config.hidden_size, 1))
             self.matching_loss_fct = nn.BCEWithLogitsLoss() 
-        
+        '''
         if hasattr(args, 'use_UR') and args.use_UR:
             self.UR_cls = BertOnlyMLMHead(self.model_config)
             self.UR_loss_fct = nn.CrossEntropyLoss()

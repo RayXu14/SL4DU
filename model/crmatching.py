@@ -6,7 +6,9 @@ from model.basic_dialog_model import BasicDialogModel
 class CRMatchingModel(BasicDialogModel):
 
     def _init_main_task(self):
-        pass   
+        self.matching_cls = nn.Sequential(nn.Dropout(p=self.args.dropout_rate),
+                                nn.Linear(self.model_config.hidden_size, 1))
+        self.matching_loss_fct = nn.BCEWithLogitsLoss() 
 
     def main_forward(self, batch):
         return self.matching_forward(batch['main_token_ids'],
