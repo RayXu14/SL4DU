@@ -37,9 +37,9 @@ def _add_genRank_args(parser):
     parser.add_argument('--gen_model', type=str,
         default='gpt2') # gpt2, gpt2-medium, gpt2-large, gpt2-xl
     parser.add_argument('--gen_max_context_length', type=int,
-        default=448)
+        default=256)
     parser.add_argument('--gen_max_length', type=int,
-        default=64)
+        default=32)
 
 
 def _add_pkl_data_args(parser):
@@ -69,6 +69,9 @@ def _add_data_loading_args(parser):
     parser.add_argument('--max_context_len', type=int,
         default=448,
         help='Max number of context tokens.')
+    parser.add_argument('--max_hint_len', type=int,
+        default=32,
+        help='Max number of hint tokens.')
     parser.add_argument('--max_response_len', type=int,
         default=64,
         help='Max number of response tokens.')
