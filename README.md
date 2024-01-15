@@ -66,7 +66,7 @@ Using [Whang's repo](https://github.com/taesunwhang/BERT-ResSel)<!-- or [our for
 
 Remember to transform the saved model to our form using *deprecated/whangpth2bin.py*.
 
-We provide our [pretrained models](https://www.dropbox.com/sh/l9ityw69ls3qyyj/AAARoLxHAP4f4lJ-twJ8IDpia?dl=0) (already transformed)
+We provide our [pretrained models](https://www.dropbox.com/scl/fo/x6vtnwoj6luar7a6x4vl1/h?rlkey=o253jwdcz0qpu89idj76vi2tr&dl=0) (already transformed)
 
 ### Additional information for pretraining settings
 set the number of epochs as 2 for post-training with 10 duplication data and set the virtual batch size as 384
